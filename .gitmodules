@@ -1,0 +1,6 @@
+[submodule "lib/python-isc-dhcp-leases"]
+	path = lib/python-isc-dhcp-leases
+	url = git@github.com:MartijnBraam/python-isc-dhcp-leases.git
+[submodule "lib/six"]
+	path = lib/six
+	url = git@github.com:benjaminp/six.git

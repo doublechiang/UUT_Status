@@ -4,6 +4,7 @@ import os
 from ConfigParser import ConfigParser
 from StringIO import StringIO
 import commands
+from iscdhcpleases import Lease, IscDhcpLeases
 
 path = "/WIN/Response/"
 
@@ -37,8 +38,14 @@ for f in dir_list:
         uut = parse_file(f)
         uuts.append(uut)
 
+leases = IscDhcpLeases('/var/lib/dhcpd/dhcpd.leases')
+current=leases.get_current()
+
 for u in uuts:
-    cmd = "arp -a | grep {0}".format(u.get('bmc_mac'))
-    out= commands.getoutput(cmd)
-    ip = out.split()[1].replace('(', '').replace(')', '')
-    print(ip)
+#    cmd = "arp -a | grep {0}".format(u.get('bmc_mac'))
+#    out= commands.getoutput(cmd)
+#    if len(out.split()) > 0:
+#        ip = out.split()[1].replace('(', '').replace(')', '')
+#        print(ip)
+    lease=current.get(u.get('bmc_mac'))    
+    print(lease.ip)
