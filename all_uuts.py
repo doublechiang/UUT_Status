@@ -1,51 +1,60 @@
-#!/bin/env python
+#!/usr/bin/env python3
 
 import os
-from ConfigParser import ConfigParser
-from StringIO import StringIO
-import commands
-from iscdhcpleases import Lease, IscDhcpLeases
+import configparser
 
-path = "/WIN/Response/"
-
-
-def string_to_mac(str):
-    """ Add the semi column into string and return the mac format
+class Uut:
     """
-    result = []
-    for i in range(0, len(str), 2):
-        result.append(str[i:i+2])
-    return ':'.join(result)
+        Unit under test class
+    """
+    @staticmethod
+    def parse_file(fname):
+        """ return an object of uut instance.
+        """
+        uut_dict = {}
+        with open(fname) as stream:
+            stream = "[dummy]\n" + stream.read()
 
-def parse_file(fname):
-    uuts = []
-    uut = {}
-    parser = ConfigParser()
-    with open(path + fname) as stream:
-        stream = StringIO("[dummy]\n" + stream.read())
-        parser.readfp(stream)
-    mac = parser.get('dummy', 'BMCMAC')
-    mac = string_to_mac(mac)
-    uut['bmc_mac'] = mac.lower()
-    return uut
-    
+        cfg_parser = configparser.RawConfigParser()
+        cfg_parser.read_string(stream)
+        # below line get single attribute    
+        # mac = cfg_parser.get('dummy', 'BMCMAC')
 
-dir_list = os.listdir(path)
-uuts = []
-for f in dir_list:
-    ext = os.path.splitext(f)[-1].lower()
-    if ext == ".txt":
-        uut = parse_file(f)
-        uuts.append(uut)
+        uut_dict = {k:v for k, v in cfg_parser['dummy'].items()}
 
-leases = IscDhcpLeases('/var/lib/dhcpd/dhcpd.leases')
-current=leases.get_current()
+        # create instance based on the dictionary so that we can access it under attribute.
+        return Uut(uut_dict)
+   
 
-for u in uuts:
-#    cmd = "arp -a | grep {0}".format(u.get('bmc_mac'))
-#    out= commands.getoutput(cmd)
-#    if len(out.split()) > 0:
-#        ip = out.split()[1].replace('(', '').replace(')', '')
-#        print(ip)
-    lease=current.get(u.get('bmc_mac'))    
-    print(lease.ip)
+    @staticmethod
+    def parse_dir(path):
+        """ Scan whole directory and return the list of UUT instance.
+        """
+        path = os.path.join(path, '')
+        dir_list = os.listdir(path)
+        uuts = []
+        for f in dir_list:
+            ext = os.path.splitext(f)[-1].lower()
+            if ext == ".txt":
+                uut = Uut.parse_file(path + f)
+                uuts.append(uut)
+        return uuts
+
+    def str_to_mac(self, str):
+        """ Add the semi column into string and return the mac format
+        """
+        result = []
+        for i in range(0, len(str), 2):
+            result.append(str[i:i+2])
+        return ':'.join(result)
+
+
+    def __init__(self, d):
+        self.__dict__ = d    
+
+if __name__ == '__main__':
+    # print(vars(Uut.parse_file('./samples/WIN/Response/P81251401000101E.txt')))
+    uuts = Uut.parse_dir('samples/WIN/Response')
+    for u in uuts:
+        print(u.str_to_mac(u.bmcmac))
+
