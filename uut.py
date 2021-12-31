@@ -46,7 +46,7 @@ class Uut:
         result = []
         for i in range(0, len(str), 2):
             result.append(str[i:i+2])
-        return ':'.join(result)
+        return ':'.join(result).lower()
 
 
     def __init__(self, d):
