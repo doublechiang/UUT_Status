@@ -1,6 +1,10 @@
 #!/usr/bin/env python3
 
 import os
+import logging
+
+from uut import Uut
+from iscdhcpleases import Lease, IscDhcpLeases
 
 class TestStation:
     """ A test station include the DHCP server response file.
@@ -8,9 +12,10 @@ class TestStation:
 
     data_path = "./data/"
     data_files = {
-        '/WIN/Response/*.txt' : './WIN/Response/',  
-        "/var/lib/dhcpd/dhcpd.leases": './var/lib/dhcpd/'
+        'RPATH' : '/WIN/RMK_I/response/config/*.txt',
+        'LPATH' : './WIN/RMK_I/response/config'
     }
+    
 
     def sync(self):
         """ rsync the teststation response files and dhcp lease file
@@ -19,11 +24,58 @@ class TestStation:
         if os.path.exists(ts_data) is False:
             os.makedirs(ts_data)
 
-        for fn, folder in TestStation.data_files.items():
-            local_folder = os.path.join(TestStation.data_path, folder)
-            cmd = "rsync {}:{} {}".format(self.hostn, fn, folder)
-            print(cmd)
-#            os.system(cmd)
+        # Get config files
+        fn = TestStation.data_files.get('RPATH')
+        local_folder = os.path.join(TestStation.data_path, TestStation.data_files.get('LPATH'))
+        cmd = "rsync {}:{} {}".format(self.hostn, fn, local_folder)
+        logging.info(cmd)
+        os.system(cmd)
+
+        # get dhcpd leases
+        cmd = "rsync {}:{} {}".format(self.hostn, "/var/lib/dhcpd/dhcpd.leases", './var/lib/dhcpd/')
+        
+
+    def __convert_mac_str(self, mac):
+        if ',' in mac:
+            mac = mac.split(',')[0]
+            return self.__convert_mac_str(mac)
+        elif mac.find(':') == -1:
+            result = []
+            for i in range(0, len(mac), 2):
+                result.append(mac[i:i+2])
+            return ':'.join(result).lower()
+        else:
+            return mac
+
+
+    def getLeaseIp(self, mac):
+        """ Based on the input mac, return the leased ip. 
+            the mac could be "aa:bb:cc:dd:ee:ff" or 
+            "123456789abc" or 
+            "123456789abc,<model>,<speed> format
+            return none if nothing found.
+        """
+        mac = self.__convert_mac_str(mac)
+        leasef = os.path.join(TestStation.data_path, self.hostn, './var/lib/dhcpd/dhcpd.leases')
+        leases=IscDhcpLeases(leasef)
+        cur = leases.get_current()
+        # for l in cur:
+        #     lease = cur[l]
+        #     print("{0}, {1}".format(l, lease.ip))
+        lease = cur.get(mac)
+        if lease is not None:
+            return lease.ip
+        return None
+
+
+    def GetUutFacotry(self):
+        local_folder = os.path.join(TestStation.data_path, self.hostn, TestStation.data_files.get('LPATH'))
+        uuts = Uut.parse_dir(local_folder)
+        logging.info("total {} uuts in the path {}".format(len(uuts), local_folder))
+        for u in uuts:
+            # bmcip = self.getLeaseIp(u.bmcmac)
+            pass 
+        return uuts
 
     def __init__(self, host):
         # use hostname root@192.168.0.83 as the host identifier

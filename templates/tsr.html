@@ -1,0 +1,17 @@
+<!doctype html>
+<html>
+<title>Test Station Resource Listing</title>
+<body>
+<table>
+    <tr>
+        <th>Test Stations</th>
+    </tr>
+    {% for t in tsl %}
+    <tr>
+        <td><a href={{ url_for('get_tsl', hostn=t.hostn) }}>{{ t.hostn }}</a></td>
+    </tr>
+    {% endfor %}
+
+</table>
+</body>
+</html>

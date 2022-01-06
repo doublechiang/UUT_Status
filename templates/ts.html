@@ -25,16 +25,19 @@
   }
 </style>
 <body>
-<p>QMF UUT Status</p>
+<p>Test Station Listing</p>
 
 <table>
-  <tr><th>Serial number</th><th>BMC MAC</th><th>BMC IP</th></tr>
-  {% for r in listing %}
+  <tr><th>Serial number</th><th>BMC MAC</th><th>BMC IP</th><th>Eth0</th><th>Eth0 IP</th><th>RM Mac</th><th>RM IP</th></tr>
+  {% for r in uuts %}
   <tr>
-    <td>{{ r['qcisn'] }}</td>
+    <td>{{ r['mlbsn'] }}</td>
     <td>{{ r.str_to_mac(r['bmcmac']) }}</td>
-    <td>{{ ts.getLeaseIp(r['bmcmac'] }}</td>
-    <td></td>
+    <td>{{ ts.getLeaseIp(r['bmcmac']) }}</td>
+    <td>{{ r['eth0'] }}</td>
+    <td>{{ ts.getLeaseIp(r['eth0']) }}</td>
+    <td>{{ r['rack_mount_mac1'] }}</td>
+    <td>{{ ts.getLeaseIp(r['rack_mount_mac1']) }}</td>
   </tr>
   {% endfor %}
 </table>
