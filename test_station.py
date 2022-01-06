@@ -10,10 +10,10 @@ class TestStation:
     """ A test station include the DHCP server response file.
     """
 
-    data_path = "./data/"
+    data_path = "data/"
     data_files = {
         'RPATH' : '/WIN/RMK_I/response/config/*.txt',
-        'LPATH' : './WIN/RMK_I/response/config'
+        'LPATH' : 'WIN/RMK_I/response/config'
     }
     
 
@@ -24,15 +24,25 @@ class TestStation:
         if os.path.exists(ts_data) is False:
             os.makedirs(ts_data)
 
+
         # Get config files
         fn = TestStation.data_files.get('RPATH')
-        local_folder = os.path.join(TestStation.data_path, TestStation.data_files.get('LPATH'))
+        local_folder = os.path.join(TestStation.data_path, self.hostn, TestStation.data_files.get('LPATH'))
+        if os.path.exists(local_folder) is False:
+            os.makedirs(local_folder)
         cmd = "rsync {}:{} {}".format(self.hostn, fn, local_folder)
         logging.info(cmd)
+        print(cmd)
         os.system(cmd)
 
         # get dhcpd leases
-        cmd = "rsync {}:{} {}".format(self.hostn, "/var/lib/dhcpd/dhcpd.leases", './var/lib/dhcpd/')
+        local_folder = os.path.join(TestStation.data_path, self.hostn, './var/lib/dhcpd/')
+        if os.path.exists(local_folder) is False:
+            os.makedirs(local_folder)
+        cmd = "rsync {}:{} {}".format(self.hostn, "/var/lib/dhcpd/dhcpd.leases", local_folder)
+        logging.info(cmd)
+        print(cmd)
+        os.system(cmd)
         
 
     def __convert_mac_str(self, mac):
