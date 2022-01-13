@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-
 import os
 import configparser
 
@@ -9,13 +8,13 @@ class Uut:
     """
     @staticmethod
     def parse_file(fname):
-        """ return an object of uut instance.
+        """ return dictionary of the config file.
         """
         uut_dict = {}
+        cfg_parser = configparser.RawConfigParser()
         with open(fname) as stream:
             stream = "[dummy]\n" + stream.read()
 
-        cfg_parser = configparser.RawConfigParser()
         cfg_parser.read_string(stream)
         # below line get single attribute    
         # mac = cfg_parser.get('dummy', 'BMCMAC')
@@ -23,7 +22,8 @@ class Uut:
         uut_dict = {k:v for k, v in cfg_parser['dummy'].items()}
 
         # create instance based on the dictionary so that we can access it under attribute.
-        return Uut(uut_dict)
+        # return Uut(uut_dict)
+        return uut_dict
    
 
     @staticmethod
@@ -37,10 +37,11 @@ class Uut:
             ext = os.path.splitext(f)[-1].lower()
             if ext == ".txt":
                 uut = Uut.parse_file(path + f)
-                uuts.append(uut)
+                uuts.append(Uut(uut))
         return uuts
 
-    def str_to_mac(self, str):
+    @staticmethod
+    def str_to_mac(str):
         """ Add the semi column into string and return the mac format
         """
         result = []

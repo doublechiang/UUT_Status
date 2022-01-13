@@ -17,7 +17,7 @@ def home():
 def test_station():
     """ Listing all of the test stations
     """
-    TSs= "root@192.168.0.83".split()
+    TSs= "root@192.168.0.83 log@192.168.0.130".split()
     # map to list of TestStation instance
     tsl = list(map(lambda x: TestStation(x), TSs))
     for t in tsl:
