@@ -20,6 +20,12 @@ class TestStation:
     def sync(self):
         """ rsync the teststation response files and dhcp lease file
         """
+
+        # Do not sync when in development mode
+        if 'development' == os.getenv('FLASK_ENV'):
+            logging.debug("Development mode, do not sync the Test station data")
+            return 
+
         ts_data = os.path.join(TestStation.data_path, self.hostn)
         if os.path.exists(ts_data) is False:
             os.makedirs(ts_data)
