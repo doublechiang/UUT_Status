@@ -8,6 +8,9 @@ from test_station import TestStation
 app = Flask(__name__)
 app.config['APPLICATION_ROOT'] = 'UUT_Status'
 
+TSs= "root@192.168.0.83 log@192.168.0.130".split()
+
+
 @app.route('/', methods=['get', 'post'])
 def home():
     return render_template('status.html')
@@ -16,12 +19,10 @@ def home():
 def test_station():
     """ Listing all of the test stations
     """
-    TSs= "root@192.168.0.83 log@192.168.0.130".split()
     # map to list of TestStation instance
     tsl = list(map(lambda x: TestStation(x), TSs))
     for t in tsl:
         t.sync()
-        pass
 
     return render_template('tsr.html', tsl=tsl)
 
@@ -33,4 +34,17 @@ def get_tsl(hostn):
     uuts = ts.GetUutFacotry()
     return render_template('ts.html', ts=ts, uuts=uuts)
 
+@app.route('/rack/')
+def racks():
+    # map to list of TestStation instance
+    tsl = list(map(lambda x: TestStation(x), TSs))
+    racks = []
+    for t in tsl:
+        t.sync()
+        rs = t.getRackFactory()
+        racks.extend(rs)
+
+    return render_template('rack.html', ts=t, racks=racks)
+
+    
 

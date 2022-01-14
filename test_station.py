@@ -11,13 +11,15 @@ class TestStation:
     """
 
     data_path = "data/"
+
+    # remote path and local path
     data_files = {
         'RPATH' : '/WIN/RMK_I/response/config/*.txt',
         'LPATH' : 'WIN/RMK_I/response/config'
     }
     
 
-    def sync(self):
+    def sync(self, hop= None):
         """ rsync the teststation response files and dhcp lease file
         """
 
@@ -36,25 +38,28 @@ class TestStation:
         local_folder = os.path.join(TestStation.data_path, self.hostn, TestStation.data_files.get('LPATH'))
         if os.path.exists(local_folder) is False:
             os.makedirs(local_folder)
-        cmd = "rsync {}:{} {}".format(self.hostn, fn, local_folder)
+        cmd = "rsync -v {}:{} {}".format(self.hostn, fn, local_folder)
+        if hop is not None:
+            cmd = "rsync -ve 'ssh -A -J {}' {}:{} {}".format(hop, self.hostn, fn, local_folder)
         logging.info(cmd)
-        print(cmd)
         os.system(cmd)
 
         # get dhcpd leases
         local_folder = os.path.join(TestStation.data_path, self.hostn, './var/lib/dhcpd/')
         if os.path.exists(local_folder) is False:
             os.makedirs(local_folder)
-        cmd = "rsync {}:{} {}".format(self.hostn, "/var/lib/dhcpd/dhcpd.leases", local_folder)
+        cmd = "rsync -v {}:{} {}".format(self.hostn, "/var/lib/dhcpd/dhcpd.leases", local_folder)
+        if hop is not None:
+            cmd = "rsync -ve 'ssh -A -J {}' {}:{} {}".format(hop, self.hostn, "/var/lib/dhcpd/dhcpd.leases", local_folder)
         logging.info(cmd)
-        print(cmd)
         os.system(cmd)
-        
+      
 
-    def __convert_mac_str(self, mac):
+    @staticmethod
+    def to_macstr(mac):
         if ',' in mac:
             mac = mac.split(',')[0]
-            return self.__convert_mac_str(mac)
+            return TestStation.to_macstr(mac)
         elif mac.find(':') == -1:
             result = []
             for i in range(0, len(mac), 2):
@@ -71,15 +76,21 @@ class TestStation:
             "123456789abc,<model>,<speed> format
             return none if nothing found.
         """
-        mac = self.__convert_mac_str(mac)
+        mac = self.to_macstr(mac)
         leasef = os.path.join(TestStation.data_path, self.hostn, './var/lib/dhcpd/dhcpd.leases')
         leases=IscDhcpLeases(leasef)
         cur = leases.get_current()
+        print('-------------------')
+        print(cur)
         # for l in cur:
         #     lease = cur[l]
         #     print("{0}, {1}".format(l, lease.ip))
         lease = cur.get(mac)
+        # print("mac:{}".format(mac))
+        # print(lease)
         if lease is not None:
+            logging.debug("mac:{}, ip {}".format(mac, lease.ip))
+            print("mac:{}, ip {}".format(mac, lease.ip))
             return lease.ip
         return None
 
@@ -93,8 +104,27 @@ class TestStation:
             pass 
         return uuts
 
+
+    def getRackFactory(self):
+        """
+            A Test station handle multiple Racks.
+            return a dictionary contain the Rack parsed information
+
+            Scan all response files and retrieve the Rack SN and RM MAC.
+        """
+        rack={}
+        racks = {}
+        uuts = self.GetUutFacotry()
+        for u in uuts:
+            rsn = u.racksn
+            rmac = u.rack_mount_mac1
+            racks[rsn] = {'rmac':rmac, 'rsn': rsn, 'ts': self.hostn}
+        return list(racks.values())
+            
+
     def __init__(self, host):
         # use hostname root@192.168.0.83 as the host identifier
+        logging.basicConfig(level=logging.INFO)
         self.hostn = host
 
 

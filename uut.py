@@ -40,23 +40,6 @@ class Uut:
                 uuts.append(Uut(uut))
         return uuts
 
-    @staticmethod
-    def str_to_mac(str):
-        """ 
-            print mac string nicely.
-            If there are common, get the first item.
-            if there is no semi colon, add it.
-            otherwise just return it.
-        """
-        result = []
-        if ',' in str:
-            return Uut.str_to_mac(str.split(',')[0])
-        if str.find(':') == -1:
-            for i in range(0, len(str), 2):
-                result.append(str[i:i+2])
-            return ':'.join(result).lower()
-        return str
-
 
     def __init__(self, d):
         self.__dict__ = d    
