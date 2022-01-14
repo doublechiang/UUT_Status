@@ -14,7 +14,8 @@ tsl = list(map(lambda x: TestStation(x), TSs))
 
 @app.route('/', methods=['get', 'post'])
 def home():
-    return render_template('status.html')
+    # return render_template('status.html')
+    return redirect(url_for('racks'))
 
 @app.route('/ts/')
 def test_station():

@@ -1,8 +1,8 @@
-<!doctype html>
-<html>
-<title>Test Station Resource Listing</title>
-<body>
-<table>
+{% extends 'base.html' %}
+
+{% block content %}
+{% block title %} Test Station Listing{% endblock %}<br/><br/>
+<table class="sortable">
     <tr>
         <th>Test Stations</th>
     </tr>
@@ -13,5 +13,5 @@
     {% endfor %}
 
 </table>
-</body>
-</html>
+{% endblock %}
+

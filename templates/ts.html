@@ -1,32 +1,7 @@
-<!doctype html>
-<html>
-<title>UUT Status</title>
-<header>
-  <script src="{{ url_for('static', filename='sorttable.js') }}"></script>
-</header>
-<style>
-  th, td {
-    text-align: left;
-  }
-  tr:nth-child(even) {background-color: lightgray;}  
-  footer {
-    padding: 3px;
-    font-size: 10px;
-  }
-  /* Sortable tables */
-  table.sortable thead {
-      background-color:#eee;
-      color:#666666;
-      font-weight: bold;
-      cursor: default;
-  }
-  table.sortable th:not(.sorttable_sorted):not(.sorttable_sorted_reverse):not(.sorttable_nosort):after { 
-    content: " \25B4\25BE" 
-  }
-</style>
-<body>
-<p>Test Station Listing</p>
+{% extends 'base.html' %}
 
+{% block content %}
+{% block title %} Test Station Listing {% endblock %}<br/><br/>
 <table class="sortable">
   <tr><th>Serial number</th><th>Eth0</th><th>Eth0 IP</th><th>RM Mac</th><th>RM IP</th></tr>
   {% for r in uuts %}
@@ -39,13 +14,6 @@
   </tr>
   {% endfor %}
 </table>
-</table>
 
-</body>
-
-<hr class="solid">
-<footer>
-  <p>Project source, issue report, comments please go to <a href="https://github.com/doublechiang/UUT_Status">https://github.com/doublechiang/UUT_Status</a></p></p>
-</footer>
-</html>
+{% endblock %}
 

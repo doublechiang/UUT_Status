@@ -1,0 +1,45 @@
+<!doctype html>
+<html>
+<title>{% block title %} {%endblock %} UUT Status</title>
+<header>
+  <script src="{{ url_for('static', filename='sorttable.js') }}"></script>
+</header>
+<style>
+  th, td {
+    text-align: left;
+  }
+  tr:nth-child(even) {background-color: lightgray;}  
+  footer {
+    padding: 3px;
+    font-size: 10px;
+  }
+  /* Sortable tables */
+  table.sortable thead {
+      background-color:#eee;
+      color:#666666;
+      font-weight: bold;
+      cursor: default;
+  }
+  table.sortable th:not(.sorttable_sorted):not(.sorttable_sorted_reverse):not(.sorttable_nosort):after { 
+    content: " \25B4\25BE" 
+  }
+</style>
+<body>
+<nav>
+  <a href="{{ url_for('racks') }}">Rack View</a> |
+  <a href="{{ url_for('test_station') }}">Test Station View</a>
+</nav>
+<br/>
+
+<div class="content">
+    {% block content %} {% endblock %}
+</div>
+
+</body>
+
+<hr class="solid">
+<footer>
+  <p>Project source, issue report, comments please go to <a href="https://github.com/doublechiang/UUT_Status">https://github.com/doublechiang/UUT_Status</a></p></p>
+</footer>
+</html>
+
