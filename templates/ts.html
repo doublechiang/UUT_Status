@@ -32,9 +32,9 @@
   {% for r in uuts %}
   <tr>
     <td>{{ r['mlbsn'] }}</td>
-    <td>{{ r['eth0'] }}</td>
+    <td>{{ r.str_to_mac(r['eth0']) }}</td>
     <td>{{ ts.getLeaseIp(r['eth0']) }}</td>
-    <td>{{ r['rack_mount_mac1'] }}</td>
+    <td>{{ r.str_to_mac(r['rack_mount_mac1']) }}</td>
     <td>{{ ts.getLeaseIp(r['rack_mount_mac1']) }}</td>
   </tr>
   {% endfor %}
