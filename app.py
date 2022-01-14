@@ -10,8 +10,7 @@ app.config['APPLICATION_ROOT'] = 'UUT_Status'
 
 @app.route('/', methods=['get', 'post'])
 def home():
-    return redirect(url_for('test_station'))
-
+    return render_template('status.html')
 
 @app.route('/ts/')
 def test_station():

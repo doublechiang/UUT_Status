@@ -27,21 +27,9 @@
 <body>
 <p>QMF UUT Status</p>
 
-<table>
-  <tr><th>Serial number</th><th>BMC MAC</th><th>BMC IP</th></tr>
-  {% for r in listing %}
-  <tr>
-    <td>{{ r['qcisn'] }}</td>
-    <td>{{ r.str_to_mac(r['bmcmac']) }}</td>
-    <td></td>
-    <td></td>
-  </tr>
-  {% endfor %}
-</table>
-</table>
+<a href={{ url_for('test_station') }} >Test Station View</a>
 
 </body>
-
 <hr class="solid">
 <footer>
   <p>Project source, issue report, comments please go to <a href="https://github.com/doublechiang/UUT_Status">https://github.com/doublechiang/UUT_Status</a></p></p>
