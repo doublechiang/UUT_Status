@@ -80,8 +80,6 @@ class TestStation:
         leasef = os.path.join(TestStation.data_path, self.hostn, './var/lib/dhcpd/dhcpd.leases')
         leases=IscDhcpLeases(leasef)
         cur = leases.get_current()
-        print('-------------------')
-        print(cur)
         # for l in cur:
         #     lease = cur[l]
         #     print("{0}, {1}".format(l, lease.ip))
@@ -90,7 +88,6 @@ class TestStation:
         # print(lease)
         if lease is not None:
             logging.debug("mac:{}, ip {}".format(mac, lease.ip))
-            print("mac:{}, ip {}".format(mac, lease.ip))
             return lease.ip
         return None
 
@@ -118,7 +115,7 @@ class TestStation:
         for u in uuts:
             rsn = u.racksn
             rmac = u.rack_mount_mac1
-            racks[rsn] = {'rmac':rmac, 'rsn': rsn, 'ts': self.hostn}
+            racks[rsn] = {'rmac':rmac, 'rsn': rsn, 'ts': self}
         return list(racks.values())
             
 

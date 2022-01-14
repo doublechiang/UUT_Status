@@ -44,7 +44,7 @@ def racks():
         rs = t.getRackFactory()
         racks.extend(rs)
 
-    return render_template('rack.html', ts=t, racks=racks)
+    return render_template('rack.html', racks=racks)
 
     
 
