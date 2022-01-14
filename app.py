@@ -9,7 +9,8 @@ app = Flask(__name__)
 app.config['APPLICATION_ROOT'] = 'UUT_Status'
 
 TSs= "root@192.168.0.83 log@192.168.0.130".split()
-
+# Commonly used Test Station instance
+tsl = list(map(lambda x: TestStation(x), TSs))
 
 @app.route('/', methods=['get', 'post'])
 def home():
@@ -20,9 +21,7 @@ def test_station():
     """ Listing all of the test stations
     """
     # map to list of TestStation instance
-    tsl = list(map(lambda x: TestStation(x), TSs))
-    for t in tsl:
-        t.sync()
+    for t in tsl: t.sync()
 
     return render_template('tsr.html', tsl=tsl)
 
@@ -30,14 +29,14 @@ def test_station():
 def get_tsl(hostn):
     """ Get Test Station Listing
     """
-    ts = TestStation(hostn)
-    uuts = ts.GetUutFacotry()
-    return render_template('ts.html', ts=ts, uuts=uuts)
+    for ts in tsl:
+        if hostn == ts.hostn:
+            uuts = ts.GetUutFacotry()
+            return render_template('ts.html', ts=ts, uuts=uuts)
 
 @app.route('/rack/')
 def racks():
     # map to list of TestStation instance
-    tsl = list(map(lambda x: TestStation(x), TSs))
     racks = []
     for t in tsl:
         t.sync()

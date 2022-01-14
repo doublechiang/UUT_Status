@@ -10,7 +10,6 @@ if __name__ == '__main__':
     # if flask_env env is development will not sync
     if os.getenv('FLASK_ENV') == 'development':
         del os.environ['FLASK_ENV']
-        
 
     for ts in tss:
         t = test_station.TestStation(ts)

@@ -2,6 +2,7 @@
 
 import os
 import logging
+import datetime
 
 from uut import Uut
 from iscdhcpleases import Lease, IscDhcpLeases
@@ -17,16 +18,29 @@ class TestStation:
         'RPATH' : '/WIN/RMK_I/response/config/*.txt',
         'LPATH' : 'WIN/RMK_I/response/config'
     }
+
+    SYNC_INTERVAL_SECS = 300
     
 
     def sync(self, hop= None):
-        """ rsync the teststation response files and dhcp lease file
+        """ 
+            rsync the teststation response files and dhcp lease file
+            Since client can call sync frequently, if called within 300 seconds, it will not execute.
         """
 
         # Do not sync when in development mode
         if 'development' == os.getenv('FLASK_ENV'):
             logging.debug("Development mode, do not sync the Test station data")
             return 
+
+        now = datetime.datetime.now()
+        if self.last_sync is not None:
+            time_diff = now - self.last_sync
+            if time_diff.seconds < TestStation.SYNC_INTERVAL_SECS:
+                logging.debug("Sync call within SYNC_INTERVAL_SECS, ignored")
+                return
+            
+        self.last_sync = now
 
         ts_data = os.path.join(TestStation.data_path, self.hostn)
         if os.path.exists(ts_data) is False:
@@ -84,8 +98,6 @@ class TestStation:
         #     lease = cur[l]
         #     print("{0}, {1}".format(l, lease.ip))
         lease = cur.get(mac)
-        # print("mac:{}".format(mac))
-        # print(lease)
         if lease is not None:
             logging.debug("mac:{}, ip {}".format(mac, lease.ip))
             return lease.ip
@@ -123,6 +135,8 @@ class TestStation:
         # use hostname root@192.168.0.83 as the host identifier
         logging.basicConfig(level=logging.INFO)
         self.hostn = host
+        self.last_sync = None
+
 
 
     
