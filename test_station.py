@@ -105,12 +105,14 @@ class TestStation:
 
 
     def GetUutFacotry(self):
+        """
+            return UUT instance in list
+        """
         local_folder = os.path.join(TestStation.data_path, self.hostn, TestStation.data_files.get('LPATH'))
         uuts = Uut.parse_dir(local_folder)
         logging.info("total {} uuts in the path {}".format(len(uuts), local_folder))
         for u in uuts:
-            # bmcip = self.getLeaseIp(u.bmcmac)
-            pass 
+            setattr(u, 'ts', self)
         return uuts
 
 

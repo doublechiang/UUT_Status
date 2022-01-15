@@ -46,5 +46,17 @@ def racks():
 
     return render_template('rack.html', racks=racks)
 
+@app.route('/uut')
+def uuts():
+    uuts=[]
+    for t in tsl:
+        t.sync()
+        part_uuts = t.GetUutFacotry()
+        uuts.extend(part_uuts)
+
+    return render_template('uut.html', uuts=uuts)
+
+
+
     
 
