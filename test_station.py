@@ -6,6 +6,7 @@ import datetime
 
 from uut import Uut
 from iscdhcpleases import Lease, IscDhcpLeases
+from rack import Rack
 
 class TestStation:
     """ A test station include the DHCP server response file.
@@ -111,25 +112,45 @@ class TestStation:
         local_folder = os.path.join(TestStation.data_path, self.hostn, TestStation.data_files.get('LPATH'))
         uuts = Uut.parse_dir(local_folder)
         logging.info("total {} uuts in the path {}".format(len(uuts), local_folder))
+        remove_list = []
         for u in uuts:
-            setattr(u, 'ts', self)
+            u.ts = self
+            # If the TS do not have a valid RM IP, do not put it in the list
+            if self.getLeaseIp(u.rack_mount_mac1) is None:
+                remove_list.append(u)
+
+        for unit in remove_list:
+            uuts.remove(unit)
         return uuts
 
 
     def getRackFactory(self):
         """
             A Test station handle multiple Racks.
-            return a dictionary contain the Rack parsed information
-
-            Scan all response files and retrieve the Rack SN and RM MAC.
+            Scan all response files and retrieve the list of Rack object
         """
-        rack={}
         racks = {}
         uuts = self.GetUutFacotry()
         for u in uuts:
             rsn = u.racksn
             rmac = u.rack_mount_mac1
-            racks[rsn] = {'rmac':rmac, 'rsn': rsn, 'ts': self}
+            r = racks.get(rsn)
+
+            # if RM's MAC doesn't get an IP, just ignore it.
+            if self.getLeaseIp(rmac) is None:
+                continue
+
+            if r is None:
+                r = Rack(rsn)
+                r.rmac = rmac
+                r.rsn = rsn
+                r.ts = self
+
+            if r.rmac != rmac or r.rsn != rsn:
+                logging.error("Response data Rack Manager doesn't match in files")
+            r.uuts.append(u)
+            racks[rsn] = r
+            
         return list(racks.values())
             
 

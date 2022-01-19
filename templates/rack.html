@@ -8,11 +8,11 @@
   <tr><th>RSN</th><th>TestStation</th><th>RM MAC</th><th>RM IP</th></tr>
   {% for r in racks %}
   <tr>
-    <td>{{ r['rsn'] }}</td>
-    <td>{{ r['ts'].hostn }}</td>
+    <td>{{ r.rsn }}</td>
+    <td>{{ r.ts.hostn }}</td>
     {# get teststation instance to get the dhcp address #}
-    <td>{{ r['ts'].to_macstr(r['rmac']) }}</td>
-    <td>{{ r['ts'].getLeaseIp(r['rmac']) }}</td>
+    <td>{{ r.ts.to_macstr(r.rmac) }}</td>
+    <td>{{ r.ts.getLeaseIp(r.rmac) }}</td>
   </tr>
   {% endfor %}
 </table>

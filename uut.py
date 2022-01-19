@@ -8,7 +8,7 @@ class Uut:
     """
     @staticmethod
     def parse_file(fname):
-        """ return dictionary of the config file.
+        """ return an UUT instance
         """
         uut_dict = {}
         cfg_parser = configparser.RawConfigParser()
@@ -22,8 +22,7 @@ class Uut:
         uut_dict = {k:v for k, v in cfg_parser['dummy'].items()}
 
         # create instance based on the dictionary so that we can access it under attribute.
-        # return Uut(uut_dict)
-        return uut_dict
+        return Uut(uut_dict)
    
 
     @staticmethod
@@ -37,12 +36,13 @@ class Uut:
             ext = os.path.splitext(f)[-1].lower()
             if ext == ".txt":
                 uut = Uut.parse_file(path + f)
-                uuts.append(Uut(uut))
+                uuts.append(uut)
         return uuts
 
 
     def __init__(self, d):
         self.__dict__ = d    
+        self.ts = None
 
 if __name__ == '__main__':
     # print(vars(Uut.parse_file('./samples/WIN/Response/P81251401000101E.txt')))
