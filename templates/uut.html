@@ -12,7 +12,16 @@
     <td>{{ r.racksn }}</td>
     <td>{{ r.location }}</td>
     <td>{{ r.ts.hostn }}</td>
-    <td><a href="http://192.168.66.95:8888/?hostname={{r.ts.getHost()}}&username={{r.ts.getHostLogin()}}&passwrod={{r.ts.getHostPassBase64()}}">SSH</a></td>
+    <!-- <td><a href="http://192.168.66.95:8888/?hostname={{r.ts.getHost()}}&username={{r.ts.getHostLogin()}}&passwrod={{r.ts.getHostPassBase64()}}">SSH</a></td> -->
+    <td>
+      <form style="display: none" action="http://192.168.66.95:8888/" method="get">
+        <button type="submit" id="button_to_link"> </button>
+        <input name='hostname' value={{r.ts.getHost()}}>
+        <input name='username' value={{r.ts.getHostLogin()}}>
+        <input name='password' value={{r.ts.getHostPassBase64()}}>
+      </form>
+      <label style="text-decoration: underline" for="button_to_link">SSH</label>
+    </td>
   </tr>
   {% endfor %}
 </table>
