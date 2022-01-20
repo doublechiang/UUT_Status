@@ -162,7 +162,7 @@ class TestStation:
 
     @staticmethod
     def getBase64(str):
-        return base64.b64encode(str.encode())
+        return base64.b64encode(str.encode()).decode('utf-8')
 
     def getHostPassBase64(self):
         coded = self.getBase64(self.passw)
