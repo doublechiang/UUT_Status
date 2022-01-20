@@ -3,7 +3,7 @@
 {% block content %}
 {% block title %} UUTs Listing {% endblock %}<br/><br/>
 <table class="sortable">
-  <tr><th>Serrial number</th><th>Eth0 IP</th><th>RM IP</th><th>Rack SN</th><th>Loc</th><th>TS</th></tr>
+  <tr><th>Serrial number</th><th>Eth0 IP</th><th>RM IP</th><th>Rack SN</th><th>Loc</th><th>TS</th><th>SSH</th></tr>
   {% for r in uuts %}
   <tr>
     <td><a href="http://192.168.66.95:5000/query/{{ r['mlbsn'] }}">{{ r['mlbsn'] }}</a></td>
@@ -12,6 +12,7 @@
     <td>{{ r.racksn }}</td>
     <td>{{ r.location }}</td>
     <td>{{ r.ts.hostn }}</td>
+    <td><a href="http://192.168.66.95:8888/?hostname={{r.ts.getHost()}}&username={{r.ts.getHostLogin()}}&passwrod={{r.ts.getHostPassBase64()}}">SSH</a></td>
   </tr>
   {% endfor %}
 </table>

@@ -3,6 +3,7 @@
 import os
 import logging
 import datetime
+import base64
 
 from uut import Uut
 from iscdhcpleases import Lease, IscDhcpLeases
@@ -152,12 +153,53 @@ class TestStation:
             racks[rsn] = r
             
         return list(racks.values())
-            
+
+    def getHost(self):
+        return self.hostn.split('@')[1]
+
+    def getHostLogin(self):
+        return self.hostn.split('@')[0]
+
+    @staticmethod
+    def getBase64(str):
+        return base64.b64encode(str.encode())
+
+    def getHostPassBase64(self):
+        coded = self.getBase64(self.passw)
+        logging.info("passwd {}, base64 coded {}".format(self.passw, coded))
+        return coded
+
+    @staticmethod
+    def getTestStationFactory():
+        """ Read UUT_SSHPASS environment to get the list of Instance of TS.
+        """
+        listing = os.environ.get('UUT_SSHPASS')
+        if listing is None:
+            logging.error("No UUT_SSHPASS defined in the environment, check README.md to define it.")
+            return []
+
+        all_pxe = []
+        for s in listing.split(','):
+            host = s.split('@')[1]
+            userpass= s.split('@')[0]
+            usern = userpass.split(':')[0]
+            passw = userpass.split(':')[1]
+            all_pxe.append((host, usern, passw))
+
+        tsl_list = []
+        for s in all_pxe:
+            ts = TestStation("{}@{}".format(s[1], s[0]))
+            ts.passw = s[2]
+            tsl_list.append(ts)
+        return tsl_list
+
+
 
     def __init__(self, host):
         # use hostname root@192.168.0.83 as the host identifier
         logging.basicConfig(level=logging.INFO)
         self.hostn = host
+        self.passw = None
         self.last_sync = None
 
 
