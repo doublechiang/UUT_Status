@@ -19,8 +19,9 @@
         <input name='hostname' value={{r.ts.getHost()}}>
         <input name='username' value={{r.ts.getHostLogin()}}>
         <input name='password' value={{r.ts.getHostPassBase64()}}>
+        <label style="text-decoration: underline" for="button_to_link">SSH</label>
       </form>
-      <label style="text-decoration: underline" for="button_to_link">SSH</label>
+      
     </td>
   </tr>
   {% endfor %}
