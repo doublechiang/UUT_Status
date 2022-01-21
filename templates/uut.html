@@ -6,7 +6,7 @@
   <tr><th>Serrial number</th><th>Eth0 IP</th><th>RM IP</th><th>Rack SN</th><th>Loc</th><th>TS</th><th>SSH</th></tr>
   {% for r in uuts %}
   <tr>
-    <td><a href="http://192.168.66.95:5000/query/{{ r['mlbsn'] }}">{{ r['mlbsn'] }}</a></td>
+    <td><a href="http://192.168.66.95:5000/query/{{ r['mlbsn'] }}">{{ r.mlbsn }}</a></td>
     <td>{{ r.ts.getLeaseIp(r.eth0) }}</td>
     <td>{{ r.ts.getLeaseIp(r.rack_mount_mac1) }}</td>
     <td>{{ r.racksn }}</td>
@@ -15,13 +15,13 @@
     <!-- <td><a href="http://192.168.66.95:8888/?hostname={{r.ts.getHost()}}&username={{r.ts.getHostLogin()}}&passwrod={{r.ts.getHostPassBase64()}}">SSH</a></td> -->
     <td>
       <form style="display: none" action="http://192.168.66.95:8888/" method="get">
-        <button type="submit" id="button_to_link"> </button>
+        <button type="submit" formtarget="_blank" id="{{ r.mlbsn }}"> 
         <input name='hostname' value={{r.ts.getHost()}}>
         <input name='username' value={{r.ts.getHostLogin()}}>
         <input name='password' value={{r.ts.getHostPassBase64()}}>
-        <label style="text-decoration: underline" for="button_to_link">SSH</label>
+        </button>
       </form>
-      
+      <label style="text-decoration: underline" for={{r.mlbsn}}>SSH</label>
     </td>
   </tr>
   {% endfor %}
