@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import os
 import configparser
+import logging
 
 class Uut:
     """
@@ -15,9 +16,19 @@ class Uut:
         with open(fname) as stream:
             stream = "[dummy]\n" + stream.read()
 
-        cfg_parser.read_string(stream)
-        # below line get single attribute    
-        # mac = cfg_parser.get('dummy', 'BMCMAC')
+
+        try:
+            cfg_parser.read_string(stream)
+            # below line get single attribute    
+            # mac = cfg_parser.get('dummy', 'BMCMAC')
+        except:
+            logging.error("Processsing file {} with exception!".format(fname))
+            return None
+
+        # if the txt file do not contain the [END] section, it's not a valid config file
+        if 'END' not in cfg_parser.sections():
+            logging.error("There is no [END] section in the config file.")
+            return None
 
         uut_dict = {k:v for k, v in cfg_parser['dummy'].items()}
 
@@ -39,10 +50,25 @@ class Uut:
                 uuts.append(uut)
         return uuts
 
-
     def __init__(self, d):
+        logging.basicConfig(level=logging.DEBUG)
         self.__dict__ = d    
         self.ts = None
+
+    @staticmethod
+    def to_macstr(mac):
+        if ',' in mac:
+            mac = mac.split(',')[0]
+            return Uut.to_macstr(mac)
+        elif mac.find(':') == -1:
+            result = []
+            for i in range(0, len(mac), 2):
+                result.append(mac[i:i+2])
+            return ':'.join(result).lower()
+        else:
+            return mac
+
+
 
 if __name__ == '__main__':
     # print(vars(Uut.parse_file('./samples/WIN/Response/P81251401000101E.txt')))

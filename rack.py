@@ -14,8 +14,16 @@ class Rack:
             
         return None
 
+    def appendUut(self, uut):
+        self.uuts.append(uut)
+        return 
+
+    def getUuts(self):
+        return self.uuts;
+
+
     def __init__(self, rsn):
         self.rsn = rsn
         self.rmac = None                # RM's MAC
-        self.ts =  None                 # Referce to Test Station
-        self.uuts = []
+        self.ts =  None                 # belong to a Test Station
+        self.uuts = []                  # a Rack include mulitple nodes

@@ -1,12 +1,16 @@
 #!/usr/bin/env python3
 from flask import Flask, request, redirect, render_template, url_for
 import logging
+from multiprocessing import Process
+import requests
+from tm import TestMonitor
 
 from uut import Uut
 from test_station import TestStation
 
 app = Flask(__name__)
 app.config['APPLICATION_ROOT'] = 'UUT_Status'
+logging.basicConfig(level=logging.DEBUG)
 
 # Commonly used Test Station instance
 # tsl = list(map(lambda x: TestStation(x), TSs))
@@ -14,17 +18,22 @@ tsl = TestStation.getTestStationFactory()
 
 @app.route('/', methods=['get', 'post'])
 def home():
-    # return render_template('status.html')
     return redirect(url_for('racks'))
 
-@app.route('/ts/')
+
+@app.route('/ts/', methods = ['post'])
 def test_station():
     """ Listing all of the test stations
     """
-    # map to list of TestStation instance
-    for t in tsl: t.sync()
+    if request.method == 'POST':
+        # to build TS directory
+        prjs = TestMonitor.getSupportedPrj()
+        for p in prjs:
+            for t in tsl:
+                t.scanPrjConfig()
+        return 'TS Posted'
+    return 'TS get'
 
-    return render_template('tsr.html', tsl=tsl)
 
 @app.route('/ts/<hostn>')
 def get_tsl(hostn):
@@ -32,7 +41,7 @@ def get_tsl(hostn):
     """
     for ts in tsl:
         if hostn == ts.hostn:
-            uuts = ts.GetUutFacotry()
+            uuts = ts.GetUutFacotry(prjl)
             return render_template('ts.html', ts=ts, uuts=uuts)
 
 @app.route('/rack/')
@@ -40,7 +49,7 @@ def racks():
     # map to list of TestStation instance
     racks = []
     for t in tsl:
-        t.sync()
+        t.sync(prjl)
         rs = t.getRackFactory()
         racks.extend(rs)
 
@@ -60,15 +69,32 @@ def rack(rsn):
 
 
 
-@app.route('/uut')
-def uuts():
-    uuts=[]
-    for t in tsl:
-        t.sync()
-        part_uuts = t.GetUutFacotry()
-        uuts.extend(part_uuts)
+@app.route('/uut/', methods=['get', 'post'])
+def uut_main():
+    headers = {'Content-type': 'text/html; charset=UTF-8'}
+    requests.post(request.url_root + url_for('test_station'), data=None, headers=headers)
+    if request.method == 'POST':
+        sn=request.form.get('sn')
+        return redirect(url_for('uut_info', mlbsn=sn))
 
+    return render_template('uut.html')
+
+@app.route('/uut/<mlbsn>')
+def uut_info(mlbsn):
+    headers = {'Content-type': 'text/html; charset=UTF-8'}
+    requests.post(request.url_root + url_for('test_station'), data=None, headers=headers)
+    uuts = []
+    for t in tsl:
+        uut = t.GetUutFacotry(mlbsn)
+        if uut is not None:
+            logging.info("found uut SN:{} from PXE:{}".format(mlbsn, uut.ts.hostn))
+            uuts.append(uut)
+    
     return render_template('uut.html', uuts=uuts)
+
+
+
+
 
 
 

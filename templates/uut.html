@@ -1,8 +1,55 @@
 {% extends 'base.html' %}
 
 {% block content %}
-{% block title %} UUTs Listing {% endblock %}<br/><br/>
+{% block title %} UUTs Info {% endblock %}<br/><br/>
+
+<form action={{ url_for('uut_main') }} method="post">
+  <label>Enter UUT SN number here to query:</label>
+    <input type="text" name="sn"></input>
+    <input type="submit" value="submit"></input><br/>
+</form>
+
+<br/>
+<br/>
+
 <table class="sortable">
+  <tr><th>Serial number</th><th>Eth0 MAC</th><th>Eth0 IP</th><th>BMC MAC</th><th>RM MAC</th><th>RM IP</th><th>Rack SN</th><th>Loc</th><th>TS</th><th>Log</Th></Th></tr>
+  {% for r in uuts %}
+  <tr>
+    <td>{{ r.mlbsn }} </td>
+    <td>{{ r.to_macstr(r.eth0) }}</td>
+    <td>
+      <form style="display: none" action="http://192.168.66.95:8888/" method="get" enctype="multipart/form-data" novalidate>
+        <button type="submit" formtarget="_blank" id="{{ r.mlbsn }}"> 
+        <input name='hostname' value={{r.ts.getHost()}}>
+        <input name='username' value={{r.ts.getHostLogin()}}>
+        <input name='password' value={{r.ts.getHostPassBase64()}}>
+        </button>
+      </form>
+      <label style="text-decoration: underline" for={{r.mlbsn}}>{{ r.ts.getLeaseIp(r.eth0) }}</label>
+      </td>
+    <td>{{ r.to_macstr(r.bmcmac) }}</td>
+    <td>{{ r.to_macstr(r.rack_mount_mac1) }}</td>
+    <td>
+      <form style="display: none" action="http://192.168.66.95:8888/" method="get" enctype="multipart/form-data" novalidate>
+        <button type="submit" formtarget="_blank" id="{{ r.mlbsn }}"> 
+        <input name='hostname' value={{r.ts.getHost()}}>
+        <input name='username' value={{r.ts.getHostLogin()}}>
+        <input name='password' value={{r.ts.getHostPassBase64()}}>
+        </button>
+      </form>
+      <label style="text-decoration: underline" for={{r.mlbsn}}>{{ r.ts.getLeaseIp(r.rack_mount_mac1) }}</label>
+      </td>
+    <td>{{ r.racksn }}</td>
+    <td>{{ r.location }}</td>
+    <td>{{ r.ts.getHost() }}</td>
+    <td><a href="http://192.168.66.95:5000/query/{{ r['mlbsn'] }}">{{ r.mlbsn }}</a></td>
+  </tr>
+  {% endfor %}
+</table>
+
+
+<!-- <table class="sortable">
   <tr><th>Serrial number</th><th>Eth0 IP</th><th>RM IP</th><th>Rack SN</th><th>Loc</th><th>TS</th><th>SSH</th></tr>
   {% for r in uuts %}
   <tr>
@@ -12,9 +59,8 @@
     <td>{{ r.racksn }}</td>
     <td>{{ r.location }}</td>
     <td>{{ r.ts.hostn }}</td>
-    <!-- <td><a href="http://192.168.66.95:8888/?hostname={{r.ts.getHost()}}&username={{r.ts.getHostLogin()}}&passwrod={{r.ts.getHostPassBase64()}}">SSH</a></td> -->
     <td>
-      <form style="display: none" action="http://192.168.66.95:8888/" method="get">
+      <form style="display: none" action="http://192.168.66.95:8888/" method="post" enctype="multipart/form-data" novalidate>
         <button type="submit" formtarget="_blank" id="{{ r.mlbsn }}"> 
         <input name='hostname' value={{r.ts.getHost()}}>
         <input name='username' value={{r.ts.getHostLogin()}}>
@@ -25,7 +71,7 @@
     </td>
   </tr>
   {% endfor %}
-</table>
+</table> -->
 
 {% endblock %}
 
