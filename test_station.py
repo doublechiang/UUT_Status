@@ -4,6 +4,7 @@ import os
 import logging
 import datetime
 import base64
+import subprocess
 
 from uut import Uut
 from iscdhcpleases import Lease, IscDhcpLeases
@@ -220,19 +221,34 @@ class TestStation:
         return uuts
 
     def scanPrjConfig(self, prj=None):
-        """ 
-        """
         if prj == None:
             prjs = TestMonitor.getSupportedPrj()
             for p in prjs:
                 self.scanPrjConfig(p)
             return 
 
-        path = os.path.join(TestStation.data_path, self.getHost(), TestMonitor.getConfigPath(prj))
-        uuts = self.__scanConfigDir(path)
-        logging.info("Prj {} was processed, total {} config files.".format(prj, len(uuts)))
-        self.uuts.update(uuts)
+        model = self.getModel(prj)
+        cksum = model.getDirSum()
+        logging.debug("====directory cksum is {}".format(cksum))
+        if cksum != model.cksum:
+            logging.debug("Integration Dirty, Building UUT instance")
+            path = os.path.join(TestStation.data_path, self.getHost(), TestMonitor.getConfigPath(prj))
+            uuts = self.__scanConfigDir(path)
+            logging.info("Prj {} was processed, total {} config files.".format(prj, len(uuts)))
+            self.uuts.update(uuts)
+            model.cksum = cksum
         return 
+        
+    def __initModel(self):
+        prjs = TestMonitor.getSupportedPrj()
+        return list(map(lambda x: self.Model(self, x), prjs))
+
+    def getModel(self, prj):
+        for m in self.models:
+            if prj == str(m):
+                return m
+        return None
+
         
     def __init__(self, host):
         # use hostname root@192.168.0.83 as the host identifier
@@ -243,7 +259,35 @@ class TestStation:
         self.racks = None
         # all uuts dict based on keysn
         self.uuts = {}
+        self.models = self.__initModel()
 
 
 
+    class Model:
+        """" Every TS include multiple Models
+        """
+        def getDirSum(self):
+            """ Get a directory Checksum by using 'ls -l | cksum'
+            """
+            path = os.path.join(TestStation.data_path, self.ts.getHost(), TestMonitor.getConfigPath(self.name))
+            cmd = "ls -l {} | cksum ".format(path)
+            result = subprocess.check_output(cmd, shell=True)
+            cksum= result.split()[0]
+            return str(cksum)
+
+        def __init__(self, ts, model):
+            self.name = model
+            self.ts = ts
+            self.cksum = None
+
+        def __str__(self):
+            return self.name
+
+        def __repr__(self):
+            return self.mode
+
+
+if __name__ == '__main__':
+    x = TestStation('log@192.168.0.210')
+    pass
     

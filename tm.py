@@ -19,7 +19,7 @@ class TestMonitor:
         supported_prjs = []
         prjs = os.environ.get(TestMonitor.ENV_PRJS)
         if prjs is not None:
-            # supported_prjs = list(map(lambda x : Project(x), prjs.split(',')))
+            # supportd_prjs = list(map(lambda x : Project(x), prjs.split(',')))
             supported_prjs = prjs.split(',')
         logging.debug("Supported Prj {}".format(supported_prjs))
         return supported_prjs
