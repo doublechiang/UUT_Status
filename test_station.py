@@ -109,6 +109,9 @@ class TestStation:
         os.system(cmd)
       
 
+    def sync_scan(self, prjs):
+        self.sync(prjs)
+        self.scanPrjConfig()
 
     def getLeaseIp(self, mac):
         """ Based on the input mac, return the leased ip. 
@@ -193,7 +196,7 @@ class TestStation:
 
     def getHostPassBase64(self):
         coded = self.getBase64(self.passw)
-        logging.info("passwd {}, base64 coded {}".format(self.passw, coded))
+        # logging.debug("passwd {}, base64 coded {}".format(self.passw, coded))
         return coded
 
 
@@ -226,9 +229,8 @@ class TestStation:
 
         model = self.getModel(prj)
         cksum = model.getDirSum()
-        logging.debug("====directory cksum is {}".format(cksum))
         if cksum != model.cksum:
-            logging.debug("Integration Dirty, Building UUT instance")
+            logging.debug("Integration Dirty previous {}, current {}, Building UUT instance".format(model.cksum, cksum))
             path = os.path.join(TestStation.data_path, self.getHost(), TestMonitor.getConfigPath(prj))
             uuts = self.__scanConfigDir(path)
             logging.info("Prj {} was processed, total {} config files.".format(prj, len(uuts)))

@@ -21,6 +21,6 @@ class TestMonitor:
         if prjs is not None:
             # supportd_prjs = list(map(lambda x : Project(x), prjs.split(',')))
             supported_prjs = prjs.split(',')
-        logging.debug("Supported Prj {}".format(supported_prjs))
+        # logging.debug("Supported Prj {}".format(supported_prjs))
         return supported_prjs
 

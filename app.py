@@ -2,6 +2,7 @@
 from flask import Flask, request, redirect, render_template, url_for
 import logging
 from multiprocessing import Process
+import threading
 import requests
 from tm import TestMonitor
 
@@ -28,9 +29,17 @@ def test_station():
     if request.method == 'POST':
         # to build TS directory
         prjs = TestMonitor.getSupportedPrj()
+        threads = []
         for t in tsl:
-            t.sync(prjs)
-            t.scanPrjConfig()
+            tst = threading.Thread(target=t.sync_scan, args=(prjs,))
+            tst.start()
+            threads.append(tst)
+            logging.debug("starting threading sync and build on {}".format(t.hostn))
+
+        for tst in threads:
+            tst.join()
+
+        logging.debug("sync and scan completed for all TS")
         return 'TS Posted'
     return 'TS get'
 
