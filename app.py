@@ -18,19 +18,19 @@ tsl = TestStation.getTestStationFactory()
 
 @app.route('/', methods=['get', 'post'])
 def home():
-    return redirect(url_for('racks'))
+    return redirect(url_for('uut_main'))
 
 
 @app.route('/ts/', methods = ['post'])
 def test_station():
-    """ Listing all of the test stations
+    """ Post command to sync and scan all directory
     """
     if request.method == 'POST':
         # to build TS directory
         prjs = TestMonitor.getSupportedPrj()
-        for p in prjs:
-            for t in tsl:
-                t.scanPrjConfig()
+        for t in tsl:
+            t.sync(prjs)
+            t.scanPrjConfig()
         return 'TS Posted'
     return 'TS get'
 
@@ -88,6 +88,9 @@ def uut_info(mlbsn):
         uut = t.GetUutFacotry(mlbsn)
         if uut is not None:
             logging.info("found uut SN:{} from PXE:{}".format(mlbsn, uut.ts.hostn))
+            # since the UUT will swap between rack, check if the UUT's RM got the IP, if not, then skip
+            if uut.ts.getLeaseIp(uut.rack_mount_mac1) is None:
+                continue
             uuts.append(uut)
     
     return render_template('uut.html', uuts=uuts)

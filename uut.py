@@ -74,12 +74,18 @@ class Uut:
 
     def getEncodeInbandSshCmd(self):
         inband_ip = self.ts.getLeaseIp(self.eth0)
-        inband_ip = '10.0.2.41'
         cmd = "None"
         if inband_ip is not None:
             cmd = "sshpass -p root ssh -o StrictHostKeyChecking=no root@{}".format(inband_ip)
         return self.urlencode(cmd)
 
+    def getEncodeOutbandSshCmd(self):
+        outband_ip =self.ts.getLeaseIp(self.rack_mount_mac1)
+        cmd = "None"
+        if outband_ip is not None:
+            # use SSHPASS environment to login to RM
+            cmd = "sshpass -e ssh -o StrictHostKeyChecking=no root@{}".format(outband_ip)
+        return self.urlencode(cmd)
 
 
 if __name__ == '__main__':

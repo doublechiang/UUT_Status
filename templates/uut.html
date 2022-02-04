@@ -20,7 +20,7 @@
     <td>{{ r.to_macstr(r.eth0) }}</td>
     <td>
       <form style="display: none" action="http://192.168.66.95:8888/" method="get" enctype="multipart/form-data" novalidate>
-        <button type="submit" formtarget="_blank" id="{{ r.mlbsn }}"> 
+        <button type="submit" formtarget="_blank" id="{{ r.mlbsn }}_inband"> 
         <input name='hostname' value={{r.ts.getHost()}}>
         <input name='username' value={{r.ts.getHostLogin()}}>
         <input name='password' value={{r.ts.getHostPassBase64()}}>
@@ -28,19 +28,20 @@
         <input name="command" value={{ r.getEncodeInbandSshCmd() }}>
         </button>
       </form>
-      <label style="text-decoration: underline" for={{r.mlbsn}}>{{ r.ts.getLeaseIp(r.eth0) }}</label>
+      <label style="text-decoration: underline" for={{r.mlbsn}}_inband>{{ r.ts.getLeaseIp(r.eth0) }}</label>
       </td>
     <td>{{ r.to_macstr(r.bmcmac) }}</td>
     <td>{{ r.to_macstr(r.rack_mount_mac1) }}</td>
     <td>
       <form style="display: none" action="http://192.168.66.95:8888/" method="get" enctype="multipart/form-data" novalidate>
-        <button type="submit" formtarget="_blank" id="{{ r.mlbsn }}"> 
+        <button type="submit" formtarget="_blank" id="{{ r.mlbsn }}_outband"> 
         <input name='hostname' value={{r.ts.getHost()}}>
         <input name='username' value={{r.ts.getHostLogin()}}>
         <input name='password' value={{r.ts.getHostPassBase64()}}>
+        <input name="command" value={{ r.getEncodeOutbandSshCmd() }}>
         </button>
       </form>
-      <label style="text-decoration: underline" for={{r.mlbsn}}>{{ r.ts.getLeaseIp(r.rack_mount_mac1) }}</label>
+      <label style="text-decoration: underline" for={{r.mlbsn}}_outband>{{ r.ts.getLeaseIp(r.rack_mount_mac1) }}</label>
       </td>
     <td>{{ r.racksn }}</td>
     <td>{{ r.location }}</td>

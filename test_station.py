@@ -69,9 +69,9 @@ class TestStation:
 
         # Get config files
         fn = os.path.join('/', TestMonitor.getConfigPath(prj), '*.txt')
-        cmd = "rsync -v {}:{} {}".format(self.hostn, fn, local_folder)
+        cmd = "rsync {}:{} {}".format(self.hostn, fn, local_folder)
         if hop is not None:
-            cmd = "rsync -ve 'ssh -A -J {}' {}:{} {}".format(hop, self.hostn, fn, local_folder)
+            cmd = "rsync -e 'ssh -A -J {}' {}:{} {}".format(hop, self.hostn, fn, local_folder)
         logging.info(cmd)
         os.system(cmd)
 
@@ -102,9 +102,9 @@ class TestStation:
         local_folder = os.path.join(TestStation.data_path, self.getHost(), './var/lib/dhcpd/')
         if os.path.exists(local_folder) is False:
             os.makedirs(local_folder)
-        cmd = "rsync -v {}:{} {}".format(self.hostn, "/var/lib/dhcpd/dhcpd.leases", local_folder)
+        cmd = "rsync {}:{} {}".format(self.hostn, "/var/lib/dhcpd/dhcpd.leases", local_folder)
         if hop is not None:
-            cmd = "rsync -ve 'ssh -A -J {}' {}:{} {}".format(hop, self.hostn, "/var/lib/dhcpd/dhcpd.leases", local_folder)
+            cmd = "rsync -e 'ssh -A -J {}' {}:{} {}".format(hop, self.hostn, "/var/lib/dhcpd/dhcpd.leases", local_folder)
         logging.info(cmd)
         os.system(cmd)
       
@@ -121,12 +121,9 @@ class TestStation:
         leasef = os.path.join(TestStation.data_path, self.getHost(), './var/lib/dhcpd/dhcpd.leases')
         leases=IscDhcpLeases(leasef)
         cur = leases.get_current()
-        # for l in cur:
-        #     lease = cur[l]
-        #     print("{0}, {1}".format(l, lease.ip))
         lease = cur.get(mac)
         if lease is not None:
-            logging.debug("mac:{}, ip {}".format(mac, lease.ip))
+            # logging.debug("mac:{}, ip {}".format(mac, lease.ip))
             return lease.ip
         return None
 
@@ -143,7 +140,7 @@ class TestStation:
             if self.getLeaseIp(uut.rack_mount_mac1) is None:
                 pass
 
-        logging.debug("Return SN {}, UUT {}".format(sn, uut))
+        # logging.debug("Return SN {}, UUT {}".format(sn, uut))
         return uut
 
 
