@@ -24,6 +24,8 @@
         <input name='hostname' value={{r.ts.getHost()}}>
         <input name='username' value={{r.ts.getHostLogin()}}>
         <input name='password' value={{r.ts.getHostPassBase64()}}>
+        <input name='encoding' value='utf-8'>
+        <input name="command" value={{ r.getEncodeInbandSshCmd() }}>
         </button>
       </form>
       <label style="text-decoration: underline" for={{r.mlbsn}}>{{ r.ts.getLeaseIp(r.eth0) }}</label>

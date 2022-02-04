@@ -2,6 +2,7 @@
 import os
 import configparser
 import logging
+import urllib
 
 class Uut:
     """
@@ -67,6 +68,17 @@ class Uut:
             return ':'.join(result).lower()
         else:
             return mac
+
+    def urlencode(self, str):
+        return urllib.parse.quote(str.encode())
+
+    def getEncodeInbandSshCmd(self):
+        inband_ip = self.ts.getLeaseIp(self.eth0)
+        inband_ip = '10.0.2.41'
+        cmd = "None"
+        if inband_ip is not None:
+            cmd = "sshpass -p root ssh -o StrictHostKeyChecking=no root@{}".format(inband_ip)
+        return self.urlencode(cmd)
 
 
 
