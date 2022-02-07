@@ -69,9 +69,9 @@ class TestStation:
 
         # Get config files
         fn = os.path.join('/', TestMonitor.getConfigPath(prj), '*.txt')
-        cmd = "rsync {}:{} {}".format(self.hostn, fn, local_folder)
+        cmd = "rsync -a {}:{} {}".format(self.hostn, fn, local_folder)
         if hop is not None:
-            cmd = "rsync -e 'ssh -A -J {}' {}:{} {}".format(hop, self.hostn, fn, local_folder)
+            cmd = "rsync -ea 'ssh -A -J {}' {}:{} {}".format(hop, self.hostn, fn, local_folder)
         logging.info(cmd)
         os.system(cmd)
 
@@ -232,10 +232,10 @@ class TestStation:
         model = self.getModel(prj)
         cksum = model.getDirSum()
         if cksum != model.cksum:
-            logging.debug("Integration Dirty previous {}, current {}, Building UUT instance".format(model.cksum, cksum))
+            logging.debug("Integration Dirty: previous {}, current {}, prj {}, host {} ,Building UUT instance".format(model.cksum, cksum, prj, self.getHost()))
             path = os.path.join(TestStation.data_path, self.getHost(), TestMonitor.getConfigPath(prj))
             uuts = self.__scanConfigDir(path)
-            logging.info("Prj {} was processed, total {} config files.".format(prj, len(uuts)))
+            logging.info("Prj {} host {} was processed, total {} config files.".format(prj, self.getHost(), len(uuts)))
             self.uuts.update(uuts)
             model.cksum = cksum
         return 

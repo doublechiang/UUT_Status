@@ -18,9 +18,9 @@ logging.basicConfig(level=logging.DEBUG)
 tsl = TestStation.getTestStationFactory()
 
 
-def triggerSyncScan():
+def triggerSyncScan(trig_url):
     headers = {'Content-type': 'text/html; charset=UTF-8'}
-    requests.post(request.url_root + url_for('test_station'), data=None, headers=headers)
+    requests.post(trig_url, data=None, headers=headers)
     return 
 
 
@@ -87,7 +87,8 @@ def rack(rsn):
 
 @app.route('/uut/', methods=['get', 'post'])
 def uut_main():
-    threading.Thread(target=triggerSyncScan()).start()
+    trig_url = request.url_root + url_for('test_station')
+    threading.Thread(target=triggerSyncScan, args=(trig_url,)).start()
     if request.method == 'POST':
         sn=request.form.get('sn')
         return redirect(url_for('uut_info', mlbsn=sn))
@@ -96,7 +97,8 @@ def uut_main():
 
 @app.route('/uut/<mlbsn>')
 def uut_info(mlbsn):
-    triggerSyncScan()
+    trig_url = request.url_root + url_for('test_station')
+    triggerSyncScan(trig_url)
     uuts = []
     for t in tsl:
         uut = t.GetUutFacotry(mlbsn)
