@@ -16,7 +16,7 @@ class TestStation:
     """
 
     data_path = "data/"
-    SYNC_INTERVAL_SECS = 300
+    SYNC_INTERVAL_SECS = 600
 
     @staticmethod
     def to_macstr(mac):
@@ -79,19 +79,20 @@ class TestStation:
         """ 
             rsync the teststation response files and dhcp lease file
             Since client can call sync frequently, if called within 300 seconds, it will not execute.
+            return True if sync performed, False is not sync
         """
 
         # Do not sync when in development mode
         if 'development' == os.getenv('FLASK_ENV'):
             logging.debug("Development mode, do not sync the Test station data")
-            return 
+            return False
 
         now = datetime.datetime.now()
         if self.last_sync is not None:
             time_diff = now - self.last_sync
             if time_diff.seconds < TestStation.SYNC_INTERVAL_SECS:
                 logging.debug("Sync call within SYNC_INTERVAL_SECS, ignored")
-                return
+                return False
             
         self.last_sync = now
 
@@ -107,11 +108,12 @@ class TestStation:
             cmd = "rsync -e 'ssh -A -J {}' {}:{} {}".format(hop, self.hostn, "/var/lib/dhcpd/dhcpd.leases", local_folder)
         logging.info(cmd)
         os.system(cmd)
+        return True
       
 
     def sync_scan(self, prjs):
-        self.sync(prjs)
-        self.scanPrjConfig()
+        if self.sync(prjs):
+            self.scanPrjConfig()
 
     def getLeaseIp(self, mac):
         """ Based on the input mac, return the leased ip. 
