@@ -17,6 +17,13 @@ logging.basicConfig(level=logging.DEBUG)
 # tsl = list(map(lambda x: TestStation(x), TSs))
 tsl = TestStation.getTestStationFactory()
 
+
+def triggerSyncScan():
+    headers = {'Content-type': 'text/html; charset=UTF-8'}
+    requests.post(request.url_root + url_for('test_station'), data=None, headers=headers)
+    return 
+
+
 @app.route('/', methods=['get', 'post'])
 def home():
     return redirect(url_for('uut_main'))
@@ -80,8 +87,7 @@ def rack(rsn):
 
 @app.route('/uut/', methods=['get', 'post'])
 def uut_main():
-    headers = {'Content-type': 'text/html; charset=UTF-8'}
-    requests.post(request.url_root + url_for('test_station'), data=None, headers=headers)
+    threading.Thread(target=triggerSyncScan()).start()
     if request.method == 'POST':
         sn=request.form.get('sn')
         return redirect(url_for('uut_info', mlbsn=sn))
@@ -90,8 +96,7 @@ def uut_main():
 
 @app.route('/uut/<mlbsn>')
 def uut_info(mlbsn):
-    headers = {'Content-type': 'text/html; charset=UTF-8'}
-    requests.post(request.url_root + url_for('test_station'), data=None, headers=headers)
+    triggerSyncScan()
     uuts = []
     for t in tsl:
         uut = t.GetUutFacotry(mlbsn)
