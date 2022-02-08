@@ -87,12 +87,12 @@ def rack(rsn):
 
 @app.route('/uut/', methods=['get', 'post'])
 def uut_main():
-    trig_url = request.url_root + url_for('test_station')
-    threading.Thread(target=triggerSyncScan, args=(trig_url,)).start()
     if request.method == 'POST':
         sn=request.form.get('sn')
         return redirect(url_for('uut_info', mlbsn=sn))
 
+    trig_url = request.url_root + url_for('test_station')
+    threading.Thread(target=triggerSyncScan, args=(trig_url,)).start()
     return render_template('uut.html')
 
 @app.route('/uut/<mlbsn>')
