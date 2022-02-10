@@ -135,7 +135,7 @@ class TestStation:
 
     def GetUutFacotry(self, sn):
         """
-            return the uut based on mbsn or chassissn
+            return the uut based on mbsn or product sn
         """
         uut = self.uuts.get(sn)
         # if can't find in mbsn, then search in chassis sn
@@ -243,8 +243,7 @@ class TestStation:
     def __genUutKeyChassisSn(self, uuts):
         uuts_keySn = {}
         for u in uuts.values():
-            csn = u.chassissn
-            uuts_keySn[csn] = u
+            uuts_keySn[u.csn] = u
         return uuts_keySn
         
 
