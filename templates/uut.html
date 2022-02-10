@@ -4,7 +4,7 @@
 {% block title %} UUTs Info {% endblock %}<br/><br/>
 
 <form action={{ url_for('uut_main') }} method="post">
-  <label>Enter UUT SN number here to query:</label>
+  <label>Enter UUT MBSN or Chassis SN number here to query:</label>
     <input type="text" name="sn"></input>
     <input type="submit" value="submit"></input><br/>
 </form>
@@ -13,9 +13,10 @@
 <br/>
 
 <table class="sortable">
-  <tr><th>Serial number</th><th>Eth0 MAC</th><th>Eth0 IP</th><th>BMC MAC</th><th>RM MAC</th><th>RM IP</th><th>Rack SN</th><th>Loc</th><th>TS</th><th>Log</Th></Th></tr>
+  <tr><th>Chassis SN</th><th>MBSN</th><th>Eth0 MAC</th><th>Eth0 IP</th><th>BMC MAC</th><th>RM MAC</th><th>RM IP</th><th>Rack SN</th><th>Loc</th><th>TS</th><th>Log</Th></Th></tr>
   {% for r in uuts %}
   <tr>
+    <td>{{ r.chassissn }}</td>
     <td>{{ r.mlbsn }} </td>
     <td>{{ r.to_macstr(r.eth0) }}</td>
     <td>

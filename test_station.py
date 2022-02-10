@@ -71,7 +71,7 @@ class TestStation:
         fn = os.path.join('/', TestMonitor.getConfigPath(prj), '*.txt')
         cmd = "rsync -a {}:{} {}".format(self.hostn, fn, local_folder)
         if hop is not None:
-            cmd = "rsync -ea 'ssh -A -J {}' {}:{} {}".format(hop, self.hostn, fn, local_folder)
+            cmd = "rsync -ae 'ssh -A -J {}' {}:{} {}".format(hop, self.hostn, fn, local_folder)
         logging.info(cmd)
         os.system(cmd)
 
@@ -82,10 +82,10 @@ class TestStation:
             return True if sync performed, False is not sync
         """
 
-        # Do not sync when in development mode
+        # Do not sync when in development mode, but we need to rebuld the directory
         if 'development' == os.getenv('FLASK_ENV'):
             logging.debug("Development mode, do not sync the Test station data")
-            return False
+            return True
 
         now = datetime.datetime.now()
         if self.last_sync is not None:
@@ -135,15 +135,12 @@ class TestStation:
 
     def GetUutFacotry(self, sn):
         """
-            return the uut based on sn
+            return the uut based on mbsn or chassissn
         """
         uut = self.uuts.get(sn)
-        if uut is not None:
-            uut.ts =self
-
-            # TODO: check if uut's RM got IP or not, we may need to filter it out.
-            if self.getLeaseIp(uut.rack_mount_mac1) is None:
-                pass
+        # if can't find in mbsn, then search in chassis sn
+        if uut == None:
+            uut = self.uuts_keysn.get(sn)
 
         # logging.debug("Return SN {}, UUT {}".format(sn, uut))
         return uut
@@ -211,13 +208,14 @@ class TestStation:
             return uuts
 
         dir_list = os.listdir(path)
-        logging.info("Config Scaning {}".format(path))
+        logging.info("Config Scaning {}, total {} files".format(path, len(dir_list)))
         for f in dir_list:
             ext = os.path.splitext(f)[-1].lower()
             if ext == ".txt":
                 # logging.debug("Processing file {}".format(f))
                 uut = Uut.parse_file(path + f)
                 if uut is not None:
+                    uut.ts = self
                     key=uut.mlbsn
                     uuts[key]=uut
         return uuts
@@ -229,6 +227,7 @@ class TestStation:
                 self.scanPrjConfig(p)
             return 
 
+        # For each project, build 
         model = self.getModel(prj)
         cksum = model.getDirSum()
         if cksum != model.cksum:
@@ -237,8 +236,18 @@ class TestStation:
             uuts = self.__scanConfigDir(path)
             logging.info("Prj {} host {} was processed, total {} config files.".format(prj, self.getHost(), len(uuts)))
             self.uuts.update(uuts)
+            self.uuts_keysn.update(self.__genUutKeyChassisSn(uuts))
             model.cksum = cksum
-        return 
+        return
+
+    def __genUutKeyChassisSn(self, uuts):
+        uuts_keySn = {}
+        for u in uuts.values():
+            csn = u.chassissn
+            uuts_keySn[csn] = u
+        return uuts_keySn
+        
+
         
     def __initModel(self):
         prjs = TestMonitor.getSupportedPrj()
@@ -258,8 +267,10 @@ class TestStation:
         self.passw = None
         self.last_sync = None
         self.racks = None
-        # all uuts dict based on keysn
+        # all uuts dict based on mbsn
         self.uuts = {}
+        # all uuts dict based on sn
+        self.uuts_keysn = {}
         self.models = self.__initModel()
 
 
