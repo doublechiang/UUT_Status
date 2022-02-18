@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+from distutils.log import error
 import os
 import logging
 import datetime
@@ -140,6 +141,8 @@ class TestStation:
         uut = self.uuts.get(sn)
         # if can't find in mbsn, then search in chassis sn
         if uut == None:
+            uut = self.uuts_keypsn.get(sn)
+        if uut == None:
             uut = self.uuts_keysn.get(sn)
 
         # logging.debug("Return SN {}, UUT {}".format(sn, uut))
@@ -158,34 +161,11 @@ class TestStation:
         return uuts
 
 
-    def getRackFactory(self, prj):
+    def getRackFactory(self):
         """
             A Test station handle multiple Racks.
-            Scan all response files and retrieve the list of Rack object
-        """
-        racks = {}
-        uuts = self.GetUutFacotry()
-        for u in uuts:
-            rsn = u.racksn
-            rmac = u.rack_mount_mac1
-            r = racks.get(rsn)
-
-            # if RM's MAC doesn't get an IP, just ignore it.
-            if self.getLeaseIp(rmac) is None:
-                continue
-
-            if r is None:
-                r = Rack(rsn)
-                r.rmac = rmac
-                r.rsn = rsn
-                r.ts = self
-
-            if r.rmac != rmac or r.rsn != rsn:
-                logging.error("Response data Rack Manager doesn't match in files")
-            r.uuts.append(u)
-            racks[rsn] = r
-            
-        return list(racks.values())
+        """        
+        return self.racks
 
     def getHost(self):
         return self.hostn.split('@')[1]
@@ -237,16 +217,39 @@ class TestStation:
             logging.info("Prj {} host {} was processed, total {} config files.".format(prj, self.getHost(), len(uuts)))
             self.uuts.update(uuts)
             self.uuts_keysn.update(self.__genUutKeyChassisSn(uuts))
+            self.uuts_keypsn.update(self.__genUutKeyProductSn(uuts))
+            self.racks = self.__genRackDict(uuts)
             model.cksum = cksum
         return
 
     def __genUutKeyChassisSn(self, uuts):
         uuts_keySn = {}
         for u in uuts.values():
+            uuts_keySn[u.chassissn] = u
+        return uuts_keySn
+
+    def __genUutKeyProductSn(self, uuts):
+        uuts_keySn = {}
+        for u in uuts.values():
             uuts_keySn[u.csn] = u
         return uuts_keySn
-        
 
+
+
+    def __genRackDict(self, uuts):
+        rack_uut_dict = {}
+        for u in uuts.values():
+            rsn = u.racksn
+            rack = rack_uut_dict.get(rsn)
+            if rack is None:
+                rack = Rack(rsn)
+                rack.rmac = u.rack_mount_mac1
+                rack.ts = self
+                rack_uut_dict[rsn] = rack
+            if rack.rmac != u.rack_mount_mac1 or rack.rsn != u.racksn:
+                logging.error("Rack SN MAC doesn't match, configuration file error!")
+            rack.appendUut(u)
+        return rack_uut_dict
         
     def __initModel(self):
         prjs = TestMonitor.getSupportedPrj()
@@ -265,11 +268,13 @@ class TestStation:
         self.hostn = host
         self.passw = None
         self.last_sync = None
+        # index of racks
         self.racks = None
         # all uuts dict based on mbsn
         self.uuts = {}
         # all uuts dict based on sn
-        self.uuts_keysn = {}
+        self.uuts_keysn = {}                # key chassissn
+        self.uuts_keypsn = {}               # key product SN
         self.models = self.__initModel()
 
 

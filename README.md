@@ -10,7 +10,9 @@ To deploy the Test station configuration, define it in the shell environment
 UUT_SSHPASS='[user]:[pass]@[server],[user]:[pass]@[server]......'
 No space in the environment, common separate for the server.
 For example
-$ export UUT_SSHPASS='log:log@192.168.0.130'
+$ export UUT_SSHPASS='log:log@192.168.0.130,[server]...'
+$ export UUT_PRJS='prj,[prj]'
+
 
 # run the server
 $ python -m flask run

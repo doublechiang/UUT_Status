@@ -23,7 +23,6 @@ def triggerSyncScan(trig_url):
     requests.post(trig_url, data=None, headers=headers)
     return 
 
-
 @app.route('/', methods=['get', 'post'])
 def home():
     return redirect(url_for('uut_main'))
@@ -55,20 +54,21 @@ def test_station():
 def get_tsl(hostn):
     """ Get Test Station Listing
     """
+    racks = {}
     for ts in tsl:
+        ts.getRackFactory()
         if hostn == ts.hostn:
             uuts = ts.GetUutFacotry(prjl)
             return render_template('ts.html', ts=ts, uuts=uuts)
 
 @app.route('/rack/')
 def racks():
+    trig_url = request.url_root + url_for('test_station')
+    triggerSyncScan(trig_url)
     # map to list of TestStation instance
-    racks = []
+    racks = dict()
     for t in tsl:
-        t.sync(prjl)
-        rs = t.getRackFactory()
-        racks.extend(rs)
-
+        racks.update(t.getRackFactory())
     return render_template('rack.html', racks=racks)
 
 @app.route('/rack/<rsn>')

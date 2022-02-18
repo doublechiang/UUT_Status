@@ -4,18 +4,19 @@
 {% block title %} UUTs Info {% endblock %}<br/><br/>
 
 <form action={{ url_for('uut_main') }} method="post">
-  <label>Enter UUT MBSN or Product SN number here to query:</label>
+  <label>Serial Number:</label>
     <input type="text" name="sn"></input>
-    <input type="submit" value="submit"></input><br/>
+    <input type="submit" value="Search"></input><br/>
 </form>
 
 <br/>
 <br/>
 
 <table class="sortable">
-  <tr><th>SN</th><th>MBSN</th><th>Eth0 MAC</th><th>Eth0 IP</th><th>BMC MAC</th><th>RM MAC</th><th>RM IP</th><th>Rack SN</th><th>Loc</th><th>TS</th><th>Log</Th></Th></tr>
+  <tr><th>Chassis SN</th><th>SN</th><th>MBSN</th><th>Eth0 MAC</th><th>Eth0 IP</th><th>BMC MAC</th><th>RM MAC</th><th>RM IP</th><th>Rack SN</th><th>Loc</th><th>TS</th></tr>
   {% for r in uuts %}
   <tr>
+    <td>{{ r.chassissn }}</td>
     <td>{{ r.csn }}</td>
     <td>{{ r.mlbsn }} </td>
     <td>{{ r.to_macstr(r.eth0) }}</td>
@@ -47,7 +48,6 @@
     <td>{{ r.racksn }}</td>
     <td>{{ r.location }}</td>
     <td>{{ r.ts.getHost() }}</td>
-    <td><a href="http://192.168.66.36:5000/query/{{ r['mlbsn'] }}">{{ r.mlbsn }}</a></td>
   </tr>
   {% endfor %}
 </table>

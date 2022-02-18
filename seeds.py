@@ -6,8 +6,8 @@ import tm
 import logging
 
 # tss = "log@192.168.0.130 log@192.168.0.83".split()
-tss = "log@192.168.0.210 log@192.168.0.130".split()
-hop = "cchiang@192.168.66.36"
+tss = "log@192.168.0.210 log@192.168.0.130 log@192.168.0.213".split()
+hop = "cchiang@192.168.66.108"
 
 if __name__ == '__main__':
     logging.basicConfig(level=logging.DEBUG)
