@@ -47,7 +47,16 @@
       </td>
     <td>{{ r.racksn }}</td>
     <td>{{ r.location }}</td>
-    <td>{{ r.ts.getHost() }}</td>
+    <td>
+      <form style="display: none" action="http://192.168.66.36:8888/" method="get" enctype="multipart/form-data" novalidate>
+        <button type="submit" formtarget="_blank" id="{{ r.mlbsn }}_ts"> 
+        <input name='hostname' value={{r.ts.getHost()}}>
+        <input name='username' value={{r.ts.getHostLogin()}}>
+        <input name='password' value={{r.ts.getHostPassBase64()}}>
+        </button>
+      </form>
+      <label style="text-decoration: underline" for={{r.mlbsn}}_ts>{{ r.ts.getHost() }}</label>
+    </td>
   </tr>
   {% endfor %}
 </table>

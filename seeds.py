@@ -6,7 +6,7 @@ import tm
 import logging
 
 # tss = "log@192.168.0.130 log@192.168.0.83".split()
-tss = "log@192.168.0.210 log@192.168.0.130 log@192.168.0.213".split()
+tss = "log@192.168.0.210 log@192.168.0.130 log@192.168.0.213 log@192.168.0.212".split()
 hop = "cchiang@192.168.66.108"
 
 if __name__ == '__main__':
