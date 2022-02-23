@@ -21,7 +21,7 @@
     <td>{{ r.mlbsn }} </td>
     <td>{{ r.to_macstr(r.eth0) }}</td>
     <td>
-      <form style="display: none" action="http://192.168.66.36:8888/" method="get" enctype="multipart/form-data" novalidate>
+      <form style="display: none" action="http://192.168.66.108:8888/" method="get" enctype="multipart/form-data" novalidate>
         <button type="submit" formtarget="_blank" id="{{ r.mlbsn }}_inband"> 
         <input name='hostname' value={{r.ts.getHost()}}>
         <input name='username' value={{r.ts.getHostLogin()}}>
@@ -35,7 +35,7 @@
     <td>{{ r.to_macstr(r.bmcmac) }}</td>
     <td>{{ r.to_macstr(r.rack_mount_mac1) }}</td>
     <td>
-      <form style="display: none" action="http://192.168.66.36:8888/" method="get" enctype="multipart/form-data" novalidate>
+      <form style="display: none" action="http://192.168.66.108:8888/" method="get" enctype="multipart/form-data" novalidate>
         <button type="submit" formtarget="_blank" id="{{ r.mlbsn }}_outband"> 
         <input name='hostname' value={{r.ts.getHost()}}>
         <input name='username' value={{r.ts.getHostLogin()}}>
