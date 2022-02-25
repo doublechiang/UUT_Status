@@ -8,6 +8,7 @@ from tm import TestMonitor
 
 from uut import Uut
 from test_station import TestStation
+import settings
 
 app = Flask(__name__)
 app.config['APPLICATION_ROOT'] = 'UUT_Status'

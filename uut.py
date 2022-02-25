@@ -3,6 +3,7 @@ import os
 import configparser
 import logging
 import urllib
+import settings
 
 class Uut:
     """
@@ -55,6 +56,7 @@ class Uut:
         logging.basicConfig(level=logging.DEBUG)
         self.__dict__ = d    
         self.ts = None
+        self.settings = settings
 
     @staticmethod
     def to_macstr(mac):

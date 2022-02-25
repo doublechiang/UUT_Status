@@ -1,11 +1,13 @@
 import os
 import stat
 import logging
+import settings
 
 class TestMonitor:
-
-    """ Test Monitor Configuratio settings.
+    """ Main Test Monitor Configuratio settings.
     """
+    _instance = None
+    CONFIG_FILE = 'settings.yml'
     ENV_PRJS='UUT_PRJS'
     @staticmethod
     def getConfigPath(prj):
@@ -23,4 +25,8 @@ class TestMonitor:
             supported_prjs = prjs.split(',')
         # logging.debug("Supported Prj {}".format(supported_prjs))
         return supported_prjs
+
+    @staticmethod
+    def getSettings():
+        return settings
 
