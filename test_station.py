@@ -34,23 +34,9 @@ class TestStation:
 
     @staticmethod
     def getTestStationFactory():
-        """ Read UUT_SSHPASS environment to get the list of Instance of TS.
-        """
-        listing = os.environ.get('UUT_SSHPASS')
-        if listing is None:
-            logging.error("No UUT_SSHPASS defined in the environment, check README.md to define it.")
-            return []
-
-        all_pxe = []
-        for s in listing.split(','):
-            host = s.split('@')[1]
-            userpass= s.split('@')[0]
-            usern = userpass.split(':')[0]
-            passw = userpass.split(':')[1]
-            all_pxe.append((host, usern, passw))
-
         tsl_list = []
-        for s in all_pxe:
+        tm = TestMonitor()
+        for s in tm.pxes:
             ts = TestStation("{}@{}".format(s[1], s[0]))
             ts.passw = s[2]
             tsl_list.append(ts)
