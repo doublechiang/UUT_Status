@@ -13,7 +13,7 @@
 <br/>
 
 <table class="sortable">
-  <tr><th>Chassis SN</th><th>SN</th><th>MBSN</th><th>Eth0 MAC</th><th>Eth0 IP</th><th>BMC MAC</th><th>RM MAC</th><th>RM IP</th><th>Rack SN</th><th>Loc</th><th>TS</th></tr>
+  <tr><th>Chassis SN</th><th>SN</th><th>MBSN</th><th>Eth0 MAC</th><th>Eth0 IP</th><th>BMC MAC</th><th>RM MAC</th><th>RM IP</th><th>Rack SN</th><th>Loc</th><th>TS</th><th>RDP Tunnel</th></tr>
   {% for r in uuts %}
   <tr>
     <td>{{ r.chassissn }}</td>
@@ -56,6 +56,18 @@
         </button>
       </form>
       <label style="text-decoration: underline" for={{r.mlbsn}}_ts>{{ r.ts.getHost() }}</label>
+    </td>
+    <td>
+      <form style="display: none" action={{ r.settings.webssh['host'] }} method="get" enctype="multipart/form-data" novalidate>
+        <button type="submit" formtarget="_blank" id="{{ r.mlbsn }}_rdp"> 
+        <input name='hostname' value='192.168.66.108'>
+        <input name='username' value='sshtunnel'>
+        <input name='password' value={{ r.ts.getBase64('sshtunnel') }}>
+        <input name="command" value={{ r.getRDPTunnelCmd('192.168.66.108') }}>
+        </button>
+      </form>
+      <label style="text-decoration: underline" for={{r.mlbsn}}_rdp>RDP Tunnel</label>
+
     </td>
   </tr>
   {% endfor %}

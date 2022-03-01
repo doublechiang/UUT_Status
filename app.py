@@ -110,7 +110,7 @@ def uut_info(mlbsn):
                 continue
             uuts.append(uut)
     
-    return render_template('uut.html', uuts=uuts)
+    return render_template('uut.html', uuts=uuts, tm=TestMonitor())
 
 
 
