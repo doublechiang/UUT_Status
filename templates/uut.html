@@ -37,10 +37,10 @@
     <td>
       <form style="display: none" action={{ r.settings.webssh['host'] }} method="get" enctype="multipart/form-data" novalidate>
         <button type="submit" formtarget="_blank" id="{{ r.mlbsn }}_outband"> 
-        <input name='hostname' value={{r.ts.getHost()}}>
-        <input name='username' value={{r.ts.getHostLogin()}}>
-        <input name='password' value={{r.ts.getHostPassBase64()}}>
-        <input name="command" value={{ r.getEncodeOutbandSshCmd() }}>
+          <input name='hostname' value={{r.ts.getHost()}}>
+          <input name='username' value={{r.ts.getHostLogin()}}>
+          <input name='password' value={{r.ts.getHostPassBase64()}}>
+          <input name="command" value={{ r.getEncodeOutbandSshCmd() }}>
         </button>
       </form>
       <label style="text-decoration: underline" for={{r.mlbsn}}_outband>{{ r.ts.getLeaseIp(r.rack_mount_mac1) }}</label>
@@ -50,20 +50,18 @@
     <td>
       <form style="display: none" action={{ r.settings.webssh['host'] }} method="get" enctype="multipart/form-data" novalidate>
         <button type="submit" formtarget="_blank" id="{{ r.mlbsn }}_ts"> 
-        <input name='hostname' value={{r.ts.getHost()}}>
-        <input name='username' value={{r.ts.getHostLogin()}}>
-        <input name='password' value={{r.ts.getHostPassBase64()}}>
+          <input name='hostname' value={{r.ts.getHost()}}>
+          <input name='username' value={{r.ts.getHostLogin()}}>
+          <input name='password' value={{r.ts.getHostPassBase64()}}>
         </button>
       </form>
       <label style="text-decoration: underline" for={{r.mlbsn}}_ts>{{ r.ts.getHost() }}</label>
     </td>
     <td>
-      <form style="display: none" action={{ r.settings.webssh['host'] }} method="get" enctype="multipart/form-data" novalidate>
+      <form style="display: none" action={{ url_for('create_tunnel') }} method="get" enctype="multipart/form-data" novalidate>
         <button type="submit" formtarget="_blank" id="{{ r.mlbsn }}_rdp"> 
-        <input name='hostname' value='192.168.66.108'>
-        <input name='username' value='sshtunnel'>
-        <input name='password' value={{ r.ts.getBase64('sshtunnel') }}>
-        <input name="command" value={{ r.getRDPTunnelCmd('192.168.66.108') }}>
+          <input name='target' value={{ r.ts.getLeaseIp(r.eth0) }}>
+          <input name='ts' value={{ r.ts.getHost() }}>
         </button>
       </form>
       <label style="text-decoration: underline" for={{r.mlbsn}}_rdp>RDP Tunnel</label>

@@ -3,9 +3,13 @@ from flask import Flask, request, redirect, render_template, url_for
 import logging
 from multiprocessing import Process
 import threading
+from itsdangerous import base64_encode
 import requests
-from tm import TestMonitor
+from urllib.parse import urlencode
+import urllib
+import base64
 
+from tm import TestMonitor
 from uut import Uut
 from test_station import TestStation
 import settings
@@ -111,6 +115,47 @@ def uut_info(mlbsn):
             uuts.append(uut)
     
     return render_template('uut.html', uuts=uuts, tm=TestMonitor())
+
+@app.route('/sshtunnel/create')
+def create_tunnel():
+    tm = TestMonitor()
+    port = tm.getFreeTunnelPort()
+    uut_ip = request.args.get('target')
+    ts_ip = request.args.get('ts')
+    logging.debug("uut_ip:{}, ts_ip{}".format(uut_ip, ts_ip))
+    if uut_ip is None:
+        pass
+    if port is None:
+        # Create 2 layers NAT SSH tunnel
+        # Local tunnel -L 
+        pass
+
+    # from the test station ip get the username and password
+    for pxe in tm.pxes:
+        if ts_ip == pxe[0]:
+            ts_pass = pxe[2]
+            ts_user = pxe[1]
+            break
+    settings = tm.getSettings()
+    tunnel_host = settings.rdp_tunnel['host']
+    tunnel_user = settings.rdp_tunnel['user']
+    tunnel_pass = settings.rdp_tunnel['pass']
+
+    cmd = 'sshpass -p {} ssh -o StrictHostKeyChecking=no -L {}:{}:{}:3389 {}@{}'.format(
+        ts_pass, tunnel_host, port, uut_ip, ts_user, ts_ip)
+    cmd_encode = urllib.parse.quote(cmd.encode())
+
+    webssh = settings.webssh['host']
+    base_url = webssh
+
+    params = dict(username=tunnel_user, 
+        password=base64.b64encode(tunnel_pass.encode()).decode('utf-8'),
+        hostname=tunnel_host,
+        command = cmd_encode)
+    redirect_url = base_url + '?' + urlencode(params)
+    return redirect(redirect_url)
+
+
 
 
 

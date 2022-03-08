@@ -2,12 +2,16 @@ import os
 import stat
 import logging
 import settings
+import subprocess
 
 class TestMonitor:
     """ Main Test Monitor Configuratio settings.
     """
     __instance = None
     ENV_PRJS='UUT_PRJS'
+    TUNNEL_PORT_START=50000
+    TUNNEL_PORT_END=50100
+
     @staticmethod
     def getConfigPath(prj):
         return os.path.join('WIN', str(prj), 'response/config')
@@ -28,6 +32,30 @@ class TestMonitor:
     @staticmethod
     def getSettings():
         return settings
+
+    @staticmethod
+    def __getOccupiedPort():
+        cmd = 'ss -ntulp4 | grep LISTEN'
+        ps = subprocess.Popen(cmd,shell=True,stdout=subprocess.PIPE,stderr=subprocess.STDOUT)
+        output = ps.communicate()[0]
+        occupied_port = []
+        for line in output.decode('utf-8').splitlines():
+            port = (line.strip()).split()[4].split(':')[1]
+            occupied_port.append(int(port))
+        return occupied_port
+
+
+    def getFreeTunnelPort(self):
+        occupied_port = TestMonitor.__getOccupiedPort()
+        logging.debug("occupied_port:{}".format(occupied_port))
+        free_port = None
+        for port in range(TestMonitor.TUNNEL_PORT_START,TestMonitor.TUNNEL_PORT_END):
+            if port in occupied_port:
+                continue
+            free_port =port
+            return free_port
+        return None
+     
 
     def __readPXEs(self):
         """ Read UUT_SSHPASS environment to get the list of Instance of TS.

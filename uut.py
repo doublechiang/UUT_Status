@@ -12,8 +12,6 @@ class Uut:
     """
         Unit under test class
     """
-    TUNNEL_PORT_START=50000
-    TUNNEL_PORT_END=50100
     @staticmethod
     def parse_file(fname):
         """ return an UUT instance
@@ -93,40 +91,6 @@ class Uut:
             # use SSHPASS environment to login to RM
             cmd = "sshpass -e ssh -o StrictHostKeyChecking=no root@{}".format(outband_ip)
         return self.urlencode(cmd)
-
-    @staticmethod
-    def __getOccupiedPort():
-        cmd = 'ss -ntulp4 | grep LISTEN'
-        ps = subprocess.Popen(cmd,shell=True,stdout=subprocess.PIPE,stderr=subprocess.STDOUT)
-        output = ps.communicate()[0]
-        occupied_port = []
-        for line in output.decode('utf-8').splitlines():
-            port = (line.strip()).split()[4].split(':')[1]
-            occupied_port.append(int(port))
-        return occupied_port
-
-
-    def getRDPTunnelCmd(self, gate_ip):
-        occupied_port = Uut.__getOccupiedPort()
-        free_port = None
-        for port in range(Uut.TUNNEL_PORT_START,Uut.TUNNEL_PORT_END):
-            if port in occupied_port:
-                continue
-            free_port =port
-            break
-        
-        if free_port:
-            # Create 2 layers NAT SSH tunnel
-            # Local tunnel -L 
-            cmd = 'sshpass -p {} ssh -o StrictHostKeyChecking=no -L {}:{}:{}:3389 log@{}'.format(
-                self.ts.passw, gate_ip, free_port, self.ts.getLeaseIp(self.eth0), self.ts.getHost())
-            logging.debug(cmd)
-            logging.debug("url encode:{}".format(self.urlencode(cmd)))
-            return self.urlencode(cmd)
-
-        return "echo \'No available free port for Tunnel\'"
-        
-        
 
 
 
