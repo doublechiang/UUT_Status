@@ -24,7 +24,7 @@ for p in settings.tss:
 
 
     # Copy the SSH pub key
-    cmd = f'ssh-copy-id -o StrictHostKeyChecking= no {user}@{s}'
+    cmd = f'ssh-copy-id -o StrictHostKeyChecking=no {user}@{s}'
     if settings.hop_station is not None:
         cmd = f'ssh-copy-id -o StrictHostKeyChecking=no -o ProxyCommand=\"ssh -W %h:%p {settings.hop_station}\" {user}@{s}'
         os.system(cmd)
