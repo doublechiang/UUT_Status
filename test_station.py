@@ -38,7 +38,7 @@ class TestStation:
         return base64.b64encode(str.encode()).decode('utf-8')
 
 
-    def __sync_prj(self, prj, hop=None):
+    def __sync_prj(self, prj):
         # create local test station data folder
         local_folder = os.path.join(TestStation.data_path, self.getHost(), tm.TestMonitor.getConfigPath(prj))
         logging.info("sync local folder :{}".format(local_folder))
@@ -48,12 +48,12 @@ class TestStation:
         # Get config files
         fn = os.path.join('/', tm.TestMonitor.getConfigPath(prj), '*.txt')
         cmd = "rsync -a {}:{} {}".format(self.hostn, fn, local_folder)
-        if hop is not None:
-            cmd = "rsync -ae 'ssh -A -J {}' {}:{} {}".format(hop, self.hostn, fn, local_folder)
+        if settings.hop_station is not None:
+            cmd = "rsync -ae 'ssh -A -J {}' {}:{} {}".format(settings.hop_station, self.hostn, fn, local_folder)
         logging.info(cmd)
         os.system(cmd)
 
-    def sync(self, hop= None):
+    def sync(self):
         """ 
             rsync the teststation response files and dhcp lease file
             Since client can call sync frequently, if called within 300 seconds, it will not execute.
@@ -67,7 +67,7 @@ class TestStation:
 
         for m in self.models:
             logging.info(f'Syncing {m} in {self}')
-            self.__sync_prj(str(m), hop)
+            self.__sync_prj(str(m))
 
         now = datetime.datetime.now()
         if self.last_sync is not None:
@@ -83,15 +83,16 @@ class TestStation:
         if os.path.exists(local_folder) is False:
             os.makedirs(local_folder)
         cmd = "rsync {}:{} {}".format(self.hostn, "/var/lib/dhcpd/dhcpd.leases", local_folder)
-        if hop is not None:
-            cmd = "rsync -e 'ssh -A -J {}' {}:{} {}".format(hop, self.hostn, "/var/lib/dhcpd/dhcpd.leases", local_folder)
+        if settings.hop_station is not None:
+            cmd = "rsync -e 'ssh -A -J {}' {}:{} {}".format(settings.hop_station, self.hostn, "/var/lib/dhcpd/dhcpd.leases", local_folder)
         logging.info(cmd)
         os.system(cmd)
         return True
       
 
     def sync_scan(self, prjs):
-        if self.sync(prjs):
+        # Sync this station based on configuration.
+        if self.sync():
             self.scanPrjConfig()
 
     def getLeaseIp(self, mac):
