@@ -6,7 +6,7 @@ import urllib
 import settings
 import subprocess
 
-from tm import TestMonitor
+# from tm import TestMonitor
 
 class Uut:
     """
@@ -32,7 +32,7 @@ class Uut:
 
         # if the txt file do not contain the [END] section, it's not a valid config file
         if 'END' not in cfg_parser.sections():
-            logging.error("There is no [END] section in the config file.")
+            logging.error(f"There is no [END] section in the config file {fname}")
             return None
 
         uut_dict = {k:v for k, v in cfg_parser['dummy'].items()}

@@ -8,8 +8,9 @@ import requests
 from urllib.parse import urlencode
 import urllib
 import base64
-
 from tm import TestMonitor
+
+# from tm import TestMonitor
 from uut import Uut
 from test_station import TestStation
 import settings
@@ -20,7 +21,7 @@ logging.basicConfig(level=logging.DEBUG)
 
 # Commonly used Test Station instance
 # tsl = list(map(lambda x: TestStation(x), TSs))
-tsl = TestStation.getTestStationFactory()
+tsl = TestMonitor().pxes
 
 
 def triggerSyncScan(trig_url):
@@ -39,9 +40,9 @@ def test_station():
     """
     if request.method == 'POST':
         # to build TS directory
-        prjs = TestMonitor.getSupportedPrj()
         threads = []
         for t in tsl:
+            prjs = t.models
             tst = threading.Thread(target=t.sync_scan, args=(prjs,))
             tst.start()
             threads.append(tst)
@@ -131,12 +132,19 @@ def create_tunnel():
         pass
 
     # from the test station ip get the username and password
-    for pxe in tm.pxes:
-        if ts_ip == pxe[0]:
-            ts_pass = pxe[2]
-            ts_user = pxe[1]
+    for ts in tm.pxes:
+        if ts_ip == ts:
+            ts_pass = ts.passw
+            ts_user = ts.user
             break
-    settings = tm.getSettings()
+
+    # for pxe in tm.pxes:
+    #     if ts_ip == pxe[0]:
+    #         ts_pass = pxe[2]
+    #         ts_user = pxe[1]
+    #         break
+
+    settings = tm.settings
     tunnel_host = settings.rdp_tunnel['host']
     tunnel_user = settings.rdp_tunnel['user']
     tunnel_pass = settings.rdp_tunnel['pass']

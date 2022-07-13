@@ -9,8 +9,9 @@ import subprocess
 
 from uut import Uut
 from iscdhcpleases import Lease, IscDhcpLeases
+import tm
+import settings
 from rack import Rack
-from tm import TestMonitor
 
 class TestStation:
     """ A test station include the DHCP server response file.
@@ -33,46 +34,40 @@ class TestStation:
             return mac
 
     @staticmethod
-    def getTestStationFactory():
-        tsl_list = []
-        tm = TestMonitor()
-        for s in tm.pxes:
-            ts = TestStation("{}@{}".format(s[1], s[0]))
-            ts.passw = s[2]
-            tsl_list.append(ts)
-        return tsl_list
-
-    @staticmethod
     def getBase64(str):
         return base64.b64encode(str.encode()).decode('utf-8')
 
 
     def __sync_prj(self, prj, hop=None):
         # create local test station data folder
-        local_folder = os.path.join(TestStation.data_path, self.getHost(), TestMonitor.getConfigPath(prj))
+        local_folder = os.path.join(TestStation.data_path, self.getHost(), tm.TestMonitor.getConfigPath(prj))
         logging.info("sync local folder :{}".format(local_folder))
         if os.path.exists(local_folder) is False:
             os.makedirs(local_folder)
 
         # Get config files
-        fn = os.path.join('/', TestMonitor.getConfigPath(prj), '*.txt')
+        fn = os.path.join('/', tm.TestMonitor.getConfigPath(prj), '*.txt')
         cmd = "rsync -a {}:{} {}".format(self.hostn, fn, local_folder)
         if hop is not None:
             cmd = "rsync -ae 'ssh -A -J {}' {}:{} {}".format(hop, self.hostn, fn, local_folder)
         logging.info(cmd)
         os.system(cmd)
 
-    def sync(self, prjs, hop= None):
+    def sync(self, hop= None):
         """ 
             rsync the teststation response files and dhcp lease file
             Since client can call sync frequently, if called within 300 seconds, it will not execute.
             return True if sync performed, False is not sync
         """
 
-        # Do not sync when in development mode, but we need to rebuld the directory
+        # Do not sync when in development mode, but we need to rebulid the directory
         if 'development' == os.getenv('FLASK_ENV'):
             logging.debug("Development mode, do not sync the Test station data")
             return True
+
+        for m in self.models:
+            logging.info(f'Syncing {m} in {self}')
+            self.__sync_prj(str(m), hop)
 
         now = datetime.datetime.now()
         if self.last_sync is not None:
@@ -82,9 +77,6 @@ class TestStation:
                 return False
             
         self.last_sync = now
-
-        for p in prjs:
-            self.__sync_prj(p, hop)
 
         # get dhcpd leases
         local_folder = os.path.join(TestStation.data_path, self.getHost(), './var/lib/dhcpd/')
@@ -187,25 +179,27 @@ class TestStation:
         return uuts
 
     def scanPrjConfig(self, prj=None):
+        # if prj input is None, then we will scan all project defined.
         if prj == None:
-            prjs = TestMonitor.getSupportedPrj()
-            for p in prjs:
+            for p in self.models:
                 self.scanPrjConfig(p)
             return 
 
         # For each project, build 
-        model = self.getModel(prj)
-        cksum = model.getDirSum()
-        if cksum != model.cksum:
-            logging.debug("Integration Dirty: previous {}, current {}, prj {}, host {} ,Building UUT instance".format(model.cksum, cksum, prj, self.getHost()))
-            path = os.path.join(TestStation.data_path, self.getHost(), TestMonitor.getConfigPath(prj))
-            uuts = self.__scanConfigDir(path)
-            logging.info("Prj {} host {} was processed, total {} config files.".format(prj, self.getHost(), len(uuts)))
-            self.uuts.update(uuts)
-            self.uuts_keysn.update(self.__genUutKeyChassisSn(uuts))
-            self.uuts_keypsn.update(self.__genUutKeyProductSn(uuts))
-            self.racks = self.__genRackDict(uuts)
-            model.cksum = cksum
+        for m in self.models:
+            cksum = m.getDirSum()
+            if cksum != m.cksum:
+                logging.debug("Integration Dirty: previous {}, current {}, prj {}, host {} ,Building UUT instance".format(m.cksum, cksum, prj, self.getHost()))
+                path = os.path.join(TestStation.data_path, self.getHost(), tm.TestMonitor.getConfigPath(prj))
+                uuts = self.__scanConfigDir(path)
+                logging.info("Prj {} host {} was processed, total {} config files.".format(prj, self.getHost(), len(uuts)))
+                self.uuts.update(uuts)
+                self.uuts_keysn.update(self.__genUutKeyChassisSn(uuts))
+                self.uuts_keypsn.update(self.__genUutKeyProductSn(uuts))
+                self.racks = self.__genRackDict(uuts)
+                m.cksum = cksum
+            else:
+                logging.info(f'directory checksum matching, skip scan for {prj} on {self.getHost()}')
         return
 
     def __genUutKeyChassisSn(self, uuts):
@@ -219,7 +213,6 @@ class TestStation:
         for u in uuts.values():
             uuts_keySn[u.csn] = u
         return uuts_keySn
-
 
 
     def __genRackDict(self, uuts):
@@ -236,23 +229,27 @@ class TestStation:
                 logging.error("Rack SN MAC doesn't match, configuration file error!")
             rack.appendUut(u)
         return rack_uut_dict
-        
-    def __initModel(self):
-        prjs = TestMonitor.getSupportedPrj()
-        return list(map(lambda x: self.Model(self, x), prjs))
+       
 
-    def getModel(self, prj):
-        for m in self.models:
-            if prj == str(m):
-                return m
-        return None
-
+    def __repr__(self):
+        return self.hostn
         
-    def __init__(self, host):
+    def __init__(self, **kwargs):
         # use hostname root@192.168.0.83 as the host identifier
         logging.basicConfig(level=logging.INFO)
-        self.hostn = host
-        self.passw = None
+        self.models = []
+        for k, v in kwargs.items():
+            if k == 'ts':
+                s = v.split('@')[1]
+                cred = v.split('@')[0]
+                user= cred.split(':')[0]
+                self.passw = cred.split(':')[1] 
+                self.hostn = f'{user}@{s}'
+            if k == 'prjs':
+                for m in v:
+                    model = self.Model(self, m)
+                    self.models.append(model)
+                
         self.last_sync = None
         # index of racks
         self.racks = None
@@ -261,19 +258,18 @@ class TestStation:
         # all uuts dict based on sn
         self.uuts_keysn = {}                # key chassissn
         self.uuts_keypsn = {}               # key product SN
-        self.models = self.__initModel()
 
 
 
     class Model:
-        """" Every TS include multiple Models
+        """" Every TS include can has multiple Models
         """
         def getDirSum(self):
             """ Get a directory Checksum by using 'ls -l | cksum'
             """
-            path = os.path.join(TestStation.data_path, self.ts.getHost(), TestMonitor.getConfigPath(self.name))
+            path = os.path.join(TestStation.data_path, self.ts.getHost(), tm.TestMonitor.getConfigPath(self.name))
             cmd = "ls -l {} | cksum ".format(path)
-            result = subprocess.check_output(cmd, shell=True)
+            result = subprocess.check_output(cmd, shell=True).decode('utf-8')
             cksum= result.split()[0]
             return str(cksum)
 
@@ -286,7 +282,7 @@ class TestStation:
             return self.name
 
         def __repr__(self):
-            return self.mode
+            return self.name
 
 
 if __name__ == '__main__':
