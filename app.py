@@ -69,7 +69,7 @@ def get_tsl(hostn):
 
 @app.route('/rack/')
 def racks():
-    trig_url = request.url_root + url_for('test_station')
+    trig_url = request.host_url + url_for('test_station')
     triggerSyncScan(trig_url)
     # map to list of TestStation instance
     racks = dict()
@@ -97,13 +97,13 @@ def uut_main():
         sn=request.form.get('sn')
         return redirect(url_for('uut_info', mlbsn=sn))
 
-    trig_url = request.url_root + url_for('test_station')
+    trig_url = request.host_url + url_for('test_station')
     threading.Thread(target=triggerSyncScan, args=(trig_url,)).start()
     return render_template('uut.html')
 
 @app.route('/uut/<mlbsn>')
 def uut_info(mlbsn):
-    trig_url = request.url_root + url_for('test_station')
+    trig_url = request.host_url + url_for('test_station')
     triggerSyncScan(trig_url)
     uuts = []
     for t in tsl:
