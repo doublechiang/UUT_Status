@@ -1,7 +1,10 @@
 {% extends 'base.html' %}
 
+
 {% block content %}
-{% block title %} UUTs Info {% endblock %}<br/><br/>
+<h1>
+{% block title %} UUTs Info {% endblock %}
+</h1><br/>
 
 <form action={{ url_for('uut_main') }} method="post">
   <label>Serial Number:</label>

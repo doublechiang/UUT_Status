@@ -1,8 +1,9 @@
 <!doctype html>
 <html>
-<title>{% block title %} {%endblock %} UUT Status</title>
 <header>
   <script src="{{ url_for('static', filename='sorttable.js') }}"></script>
+  <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
+  <title>{% block title %} Hello {% endblock %}</title>
 </header>
 <style>
   th, td {
