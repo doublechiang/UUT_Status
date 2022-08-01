@@ -129,17 +129,6 @@ class TestStation:
         return uut
 
 
-        remove_list = []
-        for u in uuts:
-            u.ts = self
-            # If the TS do not have a valid RM IP, do not put it in the list
-            if self.getLeaseIp(u.rack_mount_mac1) is None:
-                remove_list.append(u)
-
-        for unit in remove_list:
-            uuts.remove(unit)
-        return uuts
-
 
     def getRackFactory(self):
         """
@@ -170,10 +159,23 @@ class TestStation:
         with os.scandir(path) as it:
             # filter the file older than 4 weeks ( 60 sec * 60 min * 24 hour * 7 days * 4 weeks)
             filter_time = int(round(time.time())) - (60*60*24*7*4)
+            scanned_mtime = None
             for entry in it:
                 mtime = int(round(entry.stat().st_mtime))
+                if scanned_mtime is None:
+                    scanned_mtime = mtime
+                else:
+                    if scanned_mtime < mtime:
+                        scanned_mtime = mtime
+
+                # If the file already older than 4 weeks, ignore it.
                 if mtime < filter_time:
                     continue
+
+                # if the scanned file less the last scanned mtime, also skip that.
+                if mtime < self.mtime:
+                    continue
+
                 ext = os.path.splitext(entry.name)[-1].lower()
                 if ext == ".txt":
                     # logging.debug("Processing file {}".format(f))
@@ -182,22 +184,12 @@ class TestStation:
                         uut.ts = self
                         key=uut.mlbsn
                         uuts[key]=uut
+
+        # Update the most scanned file time.
+        logging.info(f"Processed {len(uuts)} uuts at PXE {self}")
+        self.mtime = scanned_mtime
         return uuts
 
-
-
-
-        # dir_list = os.listdir(path)
-        # for f in dir_list:
-        #     ext = os.path.splitext(f)[-1].lower()
-        #     if ext == ".txt":
-        #         # logging.debug("Processing file {}".format(f))
-        #         uut = Uut.parse_file(path + f)
-        #         if uut is not None:
-        #             uut.ts = self
-        #             key=uut.mlbsn
-        #             uuts[key]=uut
-        # return uuts
 
     def scanPrjConfig(self, prj=None):
         # if prj input is None, then we will scan all project defined.
@@ -279,6 +271,9 @@ class TestStation:
         # all uuts dict based on sn
         self.uuts_keysn = {}                # key chassissn
         self.uuts_keypsn = {}               # key product SN
+        # When application start, it set the filter date, and update the most updated mtime everyscan.
+        # filter the file older than 4 weeks ( 60 sec * 60 min * 24 hour * 7 days * 4 weeks)
+        self.mtime = int(round(time.time())) - (60*60*24*7*4)
 
 
 
