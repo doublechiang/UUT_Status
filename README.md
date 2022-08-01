@@ -16,13 +16,12 @@ Sync configuraiton is using ssh key authentication.
 use
 $ python setup_env.py to setup the environment.
 
+## Deployment to Centos/Redhat Apache Server
+$ yum install python3-flask
+$ yum install python-mod_wsgi
 
-To deploy the Test station configuration, define it in the shell environment
-UUT_SSHPASS='[user]:[pass]@[server],[user]:[pass]@[server]......'
-No space in the environment, common separate for the server.
-For example
-$ export UUT_SSHPASS='log:log@192.168.0.130,[server]...'
-$ export UUT_PRJS='prj,[prj]'
+Link the conf file into the /etc/httpd/conf.d
+ln -s [abs_path_to_conf]/UUT_Status.conf /etc/httpd/conf.d/
 
 
 # Test

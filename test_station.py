@@ -6,6 +6,7 @@ import logging
 import datetime
 import base64
 import subprocess
+import time
 
 from uut import Uut
 from iscdhcpleases import Lease, IscDhcpLeases
@@ -166,18 +167,37 @@ class TestStation:
         if os.path.exists(path) is False:
             return uuts
 
-        dir_list = os.listdir(path)
-        logging.info("Config Scaning {}, total {} files".format(path, len(dir_list)))
-        for f in dir_list:
-            ext = os.path.splitext(f)[-1].lower()
-            if ext == ".txt":
-                # logging.debug("Processing file {}".format(f))
-                uut = Uut.parse_file(path + f)
-                if uut is not None:
-                    uut.ts = self
-                    key=uut.mlbsn
-                    uuts[key]=uut
+        with os.scandir(path) as it:
+            # filter the file older than 4 weeks ( 60 sec * 60 min * 24 hour * 7 days * 4 weeks)
+            filter_time = int(round(time.time())) - (60*60*24*7*4)
+            for entry in it:
+                mtime = int(round(entry.stat().st_mtime))
+                if mtime < filter_time:
+                    continue
+                ext = os.path.splitext(entry.name)[-1].lower()
+                if ext == ".txt":
+                    # logging.debug("Processing file {}".format(f))
+                    uut = Uut.parse_file(path + entry.name)
+                    if uut is not None:
+                        uut.ts = self
+                        key=uut.mlbsn
+                        uuts[key]=uut
         return uuts
+
+
+
+
+        # dir_list = os.listdir(path)
+        # for f in dir_list:
+        #     ext = os.path.splitext(f)[-1].lower()
+        #     if ext == ".txt":
+        #         # logging.debug("Processing file {}".format(f))
+        #         uut = Uut.parse_file(path + f)
+        #         if uut is not None:
+        #             uut.ts = self
+        #             key=uut.mlbsn
+        #             uuts[key]=uut
+        # return uuts
 
     def scanPrjConfig(self, prj=None):
         # if prj input is None, then we will scan all project defined.
