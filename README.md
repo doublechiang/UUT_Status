@@ -4,19 +4,21 @@
 $ export FLASK_APP=app.py (app.py is the default app, so it's not required to set this command.)
 $ export FLASK_ENV=development
 
+to eanble the virtual environemnt.
+$ . ./venv/bin/activate
+
 ## seeds data.
 To get the seeds data
 $ python seeds.py
 
-## run the server
-$ python -m flask run
-
-# Deployment
 Sync configuraiton is using ssh key authentication. 
 use
 $ python setup_env.py to setup the environment.
 
-## Deployment to Centos/Redhat Apache Server
+## run the server
+$ python -m flask run
+
+# Deployment to Centos/Redhat Apache Server
 $ yum install python3-flask
 $ yum install python-mod_wsgi
 
