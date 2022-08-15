@@ -214,6 +214,14 @@ class TestStation:
             else:
                 logging.info(f'directory checksum matching, skip scan for {prj} on {self.getHost()}')
         return
+    
+    @property
+    def ip(self):
+        return self.hostn.split('@')[1]
+
+    @property
+    def user(self):
+        return self.hostn.split('@')[0]
 
     def __genUutKeyChassisSn(self, uuts):
         uuts_keySn = {}

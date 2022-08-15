@@ -123,7 +123,7 @@ def create_tunnel():
     port = tm.getFreeTunnelPort()
     uut_ip = request.args.get('target')
     ts_ip = request.args.get('ts')
-    logging.debug("uut_ip:{}, ts_ip{}".format(uut_ip, ts_ip))
+    logging.debug("uut_ip:{}, ts_ip:{}".format(uut_ip, ts_ip))
     if uut_ip is None:
         pass
     if port is None:
@@ -132,19 +132,15 @@ def create_tunnel():
         pass
 
     # from the test station ip get the username and password
+    logging.debug(f"tm.pxes:{tm.pxes}")
     for ts in tm.pxes:
-        if ts_ip == ts:
+        logging.debug(f"ts in tm.pxes:{ts}")
+        if ts_ip == ts.ip:
             ts_pass = ts.passw
             ts_user = ts.user
+            logging.debug(f'ts ip {ts_ip}, user:{ts_user}, pass:{ts_pass}')
             break
 
-    # for pxe in tm.pxes:
-    #     if ts_ip == pxe[0]:
-    #         ts_pass = pxe[2]
-    #         ts_user = pxe[1]
-    #         break
-
-    settings = tm.settings
     tunnel_host = settings.rdp_tunnel['host']
     tunnel_user = settings.rdp_tunnel['user']
     tunnel_pass = settings.rdp_tunnel['pass']
