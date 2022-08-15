@@ -21,6 +21,6 @@ if __name__ == '__main__':
 
     for ts in settings.tss:
         t = test_station.TestStation(**ts)
-        t.sync(hop=settings.hop_station)
+        t.sync()
         
 
