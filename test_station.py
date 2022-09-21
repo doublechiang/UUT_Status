@@ -198,21 +198,21 @@ class TestStation:
                 self.scanPrjConfig(p)
             return 
 
-        # For each project, build 
-        for m in self.models:
-            cksum = m.getDirSum()
-            if cksum != m.cksum:
-                logging.debug("Integration Dirty: previous {}, current {}, prj {}, host {} ,Building UUT instance".format(m.cksum, cksum, prj, self.getHost()))
-                path = os.path.join(TestStation.data_path, self.getHost(), tm.TestMonitor.getConfigPath(prj))
-                uuts = self.__scanConfigDir(path)
-                logging.info("Prj {} host {} was processed, total {} config files.".format(prj, self.getHost(), len(uuts)))
-                self.uuts.update(uuts)
-                self.uuts_keysn.update(self.__genUutKeyChassisSn(uuts))
-                self.uuts_keypsn.update(self.__genUutKeyProductSn(uuts))
-                self.racks = self.__genRackDict(uuts)
-                m.cksum = cksum
-            else:
-                logging.info(f'directory checksum matching, skip scan for {prj} on {self.getHost()}')
+        # For each project (model), build 
+        cksum = prj.getDirSum()
+        if cksum != prj.cksum:
+            logging.debug("Integration Dirty: previous {}, current {}, prj {}, host {} ,Building UUT instance".format(prj.cksum, cksum, prj, self.getHost()))
+            path = os.path.join(TestStation.data_path, self.getHost(), tm.TestMonitor.getConfigPath(prj))
+            uuts = self.__scanConfigDir(path)
+            logging.info("Prj {} host {} was processed, total {} config files.".format(prj, self.getHost(), len(uuts)))
+            self.uuts.update(uuts)
+            self.uuts_keysn.update(self.__genUutKeyChassisSn(uuts))
+            self.uuts_keypsn.update(self.__genUutKeyProductSn(uuts))
+            self.racks = self.__genRackDict(uuts)
+            prj.cksum = cksum
+        else:
+            logging.info(f'directory checksum matching, skip scan for {prj} on {self.getHost()}')
+
         return
     
     @property

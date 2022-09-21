@@ -21,15 +21,8 @@ tss =  [
     { 'ts' : 'log:log@192.168.0.215', 'prjs' : [ 'T6UB'] },
     { 'ts' : 'log:log@192.168.0.216', 'prjs' : [ 'T6UB'] },
     { 'ts' : 'log:log@192.168.0.217', 'prjs' : [ 'T6UB'] },
-    { 'ts' : 'log:log@192.168.66.66', 'prjs' : [ 'T6UB'] },
-    { 'ts' : 'log:log@192.168.59.20', 'prjs' : [ 'T6UB'] },
-    { 'ts' : 'log:log@192.168.59.21', 'prjs' : [ 'T6UB'] },
-    { 'ts' : 'log:log@192.168.59.22', 'prjs' : [ 'T6UB'] },
-    { 'ts' : 'log:log@192.168.59.23', 'prjs' : [ 'T6UB'] },
-    { 'ts' : 'log:log@192.168.59.24', 'prjs' : [ 'T6UB'] },
-    { 'ts' : 'log:log@192.168.59.25', 'prjs' : [ 'T6UB'] },
-    { 'ts' : 'log:log@192.168.59.26', 'prjs' : [ 'T6UB'] }
+    { 'ts' : 'log:log@192.168.0.218', 'prjs' : [ 'T6UB', 'T6UC'] }
 ]
 
-hop_station = 'cchiang@192.168.66.108'
-# hop_station = None
+#hop_station = 'cchiang@192.168.66.108'
+hop_station = None
