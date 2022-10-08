@@ -162,9 +162,6 @@ class TestStation:
             path = os.path.join(TestStation.data_path, self.getHost(), tm.TestMonitor.getConfigPath(prj))
             path = os.path.join(path, '')               # Add the appendix / if not
 
-            uuts = self.__scanConfigDir(path)
-
-
             uuts = {}
             with os.scandir(path) as it:
                 # filter the file older than 4 weeks ( 60 sec * 60 min * 24 hour * 7 days * 4 weeks)
