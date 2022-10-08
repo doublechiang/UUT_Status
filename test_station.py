@@ -148,49 +148,6 @@ class TestStation:
         return coded
 
 
-    def __scanConfigDir(self, path):
-        """ Scan the configuration and build the rack instance and UUT instance dict
-        """
-        uuts = {}
-        path = os.path.join(path, '')               # Add the appendix / if not
-        if os.path.exists(path) is False:
-            return uuts
-
-        with os.scandir(path) as it:
-            # filter the file older than 4 weeks ( 60 sec * 60 min * 24 hour * 7 days * 4 weeks)
-            filter_time = int(round(time.time())) - (60*60*24*7*4)
-            scanned_mtime = None
-            for entry in it:
-                mtime = int(round(entry.stat().st_mtime))
-                if scanned_mtime is None:
-                    scanned_mtime = mtime
-                else:
-                    if scanned_mtime < mtime:
-                        scanned_mtime = mtime
-
-                # If the file already older than 4 weeks, ignore it.
-                if mtime < filter_time:
-                    continue
-
-                # if the scanned file less the last scanned mtime, also skip that.
-                if mtime < self.mtime:
-                    continue
-
-                ext = os.path.splitext(entry.name)[-1].lower()
-                if ext == ".txt":
-                    # logging.debug("Processing file {}".format(f))
-                    uut = Uut.parse_file(path + entry.name)
-                    if uut is not None:
-                        uut.ts = self
-                        key=uut.mlbsn
-                        uuts[key]=uut
-
-        # Update the most scanned file time.
-        logging.info(f"Processed {len(uuts)} uuts at PXE {self}")
-        self.mtime = scanned_mtime
-        return uuts
-
-
     def scanPrjConfig(self, prj=None):
         # if prj input is None, then we will scan all project defined.
         if prj == None:
@@ -203,7 +160,43 @@ class TestStation:
         if cksum != prj.cksum:
             logging.debug("Integration Dirty: previous {}, current {}, prj {}, host {} ,Building UUT instance".format(prj.cksum, cksum, prj, self.getHost()))
             path = os.path.join(TestStation.data_path, self.getHost(), tm.TestMonitor.getConfigPath(prj))
+            path = os.path.join(path, '')               # Add the appendix / if not
+
             uuts = self.__scanConfigDir(path)
+
+
+            uuts = {}
+            with os.scandir(path) as it:
+                # filter the file older than 4 weeks ( 60 sec * 60 min * 24 hour * 7 days * 4 weeks)
+                filter_time = int(round(time.time())) - (60*60*24*7*4)
+                scanned_mtime = None
+                for entry in it:
+                    mtime = int(round(entry.stat().st_mtime))
+                    if scanned_mtime is None:
+                        scanned_mtime = mtime
+                    else:
+                        if scanned_mtime < mtime:
+                            scanned_mtime = mtime
+
+                    # If the file already older than 4 weeks, ignore it.
+                    if mtime < filter_time:
+                        continue
+
+                    # if the scanned file less the last scanned mtime, also skip that.
+                    if mtime < prj.mtime:
+                        continue
+
+                    ext = os.path.splitext(entry.name)[-1].lower()
+                    if ext == ".txt":
+                        # logging.debug("Processing file {}".format(f))
+                        uut = Uut.parse_file(path + entry.name)
+                        if uut is not None:
+                            uut.ts = self
+                            key=uut.mlbsn
+                            uuts[key]=uut
+
+            # Update the most scanned file time.
+            prj.mtime = scanned_mtime
             logging.info("Prj {} host {} was processed, total {} config files.".format(prj, self.getHost(), len(uuts)))
             self.uuts.update(uuts)
             self.uuts_keysn.update(self.__genUutKeyChassisSn(uuts))
@@ -279,9 +272,6 @@ class TestStation:
         # all uuts dict based on sn
         self.uuts_keysn = {}                # key chassissn
         self.uuts_keypsn = {}               # key product SN
-        # When application start, it set the filter date, and update the most updated mtime everyscan.
-        # filter the file older than 4 weeks ( 60 sec * 60 min * 24 hour * 7 days * 4 weeks)
-        self.mtime = int(round(time.time())) - (60*60*24*7*4)
 
 
 
@@ -301,6 +291,9 @@ class TestStation:
             self.name = model
             self.ts = ts
             self.cksum = None
+            # When application start, it set the filter date, and update the most updated mtime everyscan.
+            # filter the file older than 4 weeks ( 60 sec * 60 min * 24 hour * 7 days * 4 weeks)
+            self.mtime = int(round(time.time())) - (60*60*24*7*4)
 
         def __str__(self):
             return self.name
