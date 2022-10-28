@@ -1,2 +1,5 @@
 flask
 requests
+itsdangerous
+Flask-Session
+Flask-Mail

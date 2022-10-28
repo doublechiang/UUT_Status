@@ -21,7 +21,6 @@ tss =  [
     { 'ts' : 'log:log@192.168.0.215', 'prjs' : [ 'T6UB'] },
     { 'ts' : 'log:log@192.168.0.216', 'prjs' : [ 'T6UB'] },
     { 'ts' : 'log:log@192.168.0.217', 'prjs' : [ 'T6UB'] },
-    { 'ts' : 'log:log@192.168.66.66', 'prjs' : [ 'T6UB'] },
     { 'ts' : 'log:log@192.168.59.20', 'prjs' : [ 'T6UB'] },
     { 'ts' : 'log:log@192.168.59.21', 'prjs' : [ 'T6UB'] },
     { 'ts' : 'log:log@192.168.59.22', 'prjs' : [ 'T6UB'] },
@@ -33,3 +32,15 @@ tss =  [
 
 hop_station = 'cchiang@192.168.66.108'
 # hop_station = None
+
+rm_pass = ''
+
+
+mail_settings = {
+    'MAIL_SERVER' : 'smtp.office365.com',
+    'MAIL_PORT' : 587,
+    'MAIL_USE_TLS' : True,
+    'MAIL_USERNAME' : '',
+    'MAIL_PASSWORD' : '',
+    'MAIL_DEFAULT_SENDER' : ('UUT Status Login', 'chunyu.chiang@qct.io')
+}

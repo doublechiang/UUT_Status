@@ -1,0 +1,13 @@
+Hi {{ email }},<br/><br/>
+
+Click below link to login UUT Status. Please keep this link if you want to use this service<br/>
+
+<a href="{{ login_url }}/{{ token }}">Click link to login</a><br/>
+
+If the above link doesn't work, use following method.<br/>
+<a href="{{ login_url }}">Click to open the login page</a><br/><br/>
+Copy the code below and paste to the webpage then submit.<br/><br/>
+
+{{ token }}<br/><br/>
+
+This mail is generated at {{ current_dt}}, expired in 24 hours.

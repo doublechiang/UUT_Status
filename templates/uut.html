@@ -1,17 +1,24 @@
 {% extends 'base.html' %}
 
 
+
 {% block content %}
-<h1>
+
+{% if current_user %}
+Hi {{ current_user }}
+{% endif %}
+
+<br/>
+
 {% block title %} UUTs Info {% endblock %}
-</h1><br/>
+
 
 <form action={{ url_for('uut_main') }} method="post">
   <label>Serial Number:</label>
     <input type="text" name="sn"></input>
     <input type="submit" value="Search"></input><br/>
-</form>
-
+    <input type="hidden" name='token' value={{token}}>
+  </form>
 <br/>
 <br/>
 
@@ -31,6 +38,7 @@
         <input name='password' value={{r.ts.getHostPassBase64()}}>
         <input name='encoding' value='utf-8'>
         <input name="command" value={{ r.getEncodeInbandSshCmd() }}>
+        <input type="hidden" name='token' value={{token}}>
         </button>
       </form>
       <label style="text-decoration: underline" for={{r.mlbsn}}_inband>{{ r.ts.getLeaseIp(r.eth0) }}</label>
