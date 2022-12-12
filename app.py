@@ -94,7 +94,7 @@ def rack(rsn):
 @app.route('/uut/', methods=['get', 'post'])
 def uut_main():
     if request.method == 'POST':
-        sn=request.form.get('sn')
+        sn=request.form.get('sn').strip()
         return redirect(url_for('uut_info', mlbsn=sn))
 
     trig_url = request.host_url + url_for('test_station')

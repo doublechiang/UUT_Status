@@ -38,36 +38,37 @@
     <td>{{ r.to_macstr(r.bmcmac) }}</td>
     <td>{{ r.to_macstr(r.rack_mount_mac1) }}</td>
     <td>
+      <!-- RM IP -->
       <form style="display: none" action={{ r.settings.webssh['host'] }} method="get" enctype="multipart/form-data" novalidate>
-        <button type="submit" formtarget="_blank" id="{{ r.mlbsn }}_outband"> 
+        <button type="submit" formtarget="_blank" id="{{ r.ts.getLeaseIp(r.rack_mount_mac1) }}_outband"> 
           <input name='hostname' value={{r.ts.getHost()}}>
           <input name='username' value={{r.ts.getHostLogin()}}>
           <input name='password' value={{r.ts.getHostPassBase64()}}>
           <input name="command" value={{ r.getEncodeOutbandSshCmd() }}>
         </button>
       </form>
-      <label style="text-decoration: underline" for={{r.mlbsn}}_outband>{{ r.ts.getLeaseIp(r.rack_mount_mac1) }}</label>
+      <label style="text-decoration: underline" for={{ r.ts.getLeaseIp(r.rack_mount_mac1) }}_outband>{{ r.ts.getLeaseIp(r.rack_mount_mac1) }}</label>
       </td>
     <td>{{ r.racksn }}</td>
     <td>{{ r.location }}</td>
     <td>
       <form style="display: none" action={{ r.settings.webssh['host'] }} method="get" enctype="multipart/form-data" novalidate>
-        <button type="submit" formtarget="_blank" id="{{ r.mlbsn }}_ts"> 
+        <button type="submit" formtarget="_blank" id="{{ r.ts.getHost() }}"> 
           <input name='hostname' value={{r.ts.getHost()}}>
           <input name='username' value={{r.ts.getHostLogin()}}>
           <input name='password' value={{r.ts.getHostPassBase64()}}>
         </button>
       </form>
-      <label style="text-decoration: underline" for={{r.mlbsn}}_ts>{{ r.ts.getHost() }}</label>
+      <label style="text-decoration: underline" for={{r.ts.getHost()}}>{{ r.ts.getHost() }}</label>
     </td>
     <td>
       <form style="display: none" action={{ url_for('create_tunnel') }} method="get" enctype="multipart/form-data" novalidate>
-        <button type="submit" formtarget="_blank" id="{{ r.mlbsn }}_rdp"> 
+        <button type="submit" formtarget="_blank" id="{{ r.ts.getHost() }}_rdp"> 
           <input name='target' value={{ r.ts.getLeaseIp(r.eth0) }}>
           <input name='ts' value={{ r.ts.getHost() }}>
         </button>
       </form>
-      <label style="text-decoration: underline" for={{r.mlbsn}}_rdp>RDP Tunnel</label>
+      <label style="text-decoration: underline" for={{r.ts.getHost()}}_rdp>RDP Tunnel</label>
 
     </td>
   </tr>
