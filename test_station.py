@@ -48,9 +48,9 @@ class TestStation:
 
         # Get config files
         fn = os.path.join('/', tm.TestMonitor.getConfigPath(prj), '*.txt')
-        cmd = "rsync -a {}:{} {}".format(self.hostn, fn, local_folder)
+        cmd = "rsync --timeout=2 -a --delete {}:{} {}".format(self.hostn, fn, local_folder)
         if settings.hop_station is not None:
-            cmd = "rsync -ae 'ssh -A -J {}' {}:{} {}".format(settings.hop_station, self.hostn, fn, local_folder)
+            cmd = "rsync --timeout=2 -ae --delete 'ssh -A -J {}' {}:{} {}".format(settings.hop_station, self.hostn, fn, local_folder)
         logging.info(cmd)
         os.system(cmd)
 
@@ -83,9 +83,9 @@ class TestStation:
         local_folder = os.path.join(TestStation.data_path, self.getHost(), './var/lib/dhcpd/')
         if os.path.exists(local_folder) is False:
             os.makedirs(local_folder)
-        cmd = "rsync {}:{} {}".format(self.hostn, "/var/lib/dhcpd/dhcpd.leases", local_folder)
+        cmd = "rsync --timeout=2 {}:{} {}".format(self.hostn, "/var/lib/dhcpd/dhcpd.leases", local_folder)
         if settings.hop_station is not None:
-            cmd = "rsync -e 'ssh -A -J {}' {}:{} {}".format(settings.hop_station, self.hostn, "/var/lib/dhcpd/dhcpd.leases", local_folder)
+            cmd = "rsync --timeout=2 -e 'ssh -A -J {}' {}:{} {}".format(settings.hop_station, self.hostn, "/var/lib/dhcpd/dhcpd.leases", local_folder)
         logging.info(cmd)
         os.system(cmd)
         return True
